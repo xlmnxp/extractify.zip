@@ -8,9 +8,11 @@ export default defineNuxtConfig({
     build: {
         transpile: ['vuetify'],
     },
+
+    // disable vite externals and ssr
     vite: {
-        define: {
-            'process.env.DEBUG': false,
+        optimizeDeps: {
+            exclude: ['vuetify'],
         },
         ssr: {
             noExternal: ['vuetify'],
