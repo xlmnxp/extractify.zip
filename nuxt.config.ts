@@ -11,7 +11,6 @@ export default defineNuxtConfig({
     build: {
         transpile: ['vuetify'],
     },
-
     // disable vite externals and ssr
     vite: {
         optimizeDeps: {
