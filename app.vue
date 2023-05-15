@@ -95,7 +95,6 @@ watchEffect(() => {
 let dragContainer = document.querySelector(".select-area");
 
 function onSelectStart(e: any) {
-  console.log("start", e);
   e.added.forEach((el: any) => {
     el.classList.add("selected");
   });
@@ -105,7 +104,6 @@ function onSelectStart(e: any) {
 }
 
 function onSelectEnd(e: any) {
-  console.log("end", e);
   e.afterAdded.forEach((el: any) => {
     el.classList.add("selected");
   });
@@ -159,7 +157,7 @@ function onSelectEnd(e: any) {
         :selectFromInside="false" :toggleContinueSelect="'shift'" @select="onSelectStart" @selectStart="onSelectStart"
         :get-element-rect="getElementInfo"
         @selectEnd="onSelectEnd" />
-      <h1 v-if="!files.length">Drag and drop compressed files here</h1>
+      <h1 v-if="!files.length">Drag compressed files here</h1>
     </v-main>
   </v-layout>
 </template>
