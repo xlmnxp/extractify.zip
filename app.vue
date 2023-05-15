@@ -140,7 +140,7 @@ function onSelectEnd(e: any) {
         <v-container>
           <v-list :selected="[selectedItem]">
             <v-row no-gutters>
-              <v-col cols="6" sm="2" class="" v-for="file of filesGridList" style="text-align: center;">
+              <v-col cols="6" sm="2" v-for="file of filesGridList" style="text-align: center;">
                 <v-list-item class="ma-2 pa-5 selectable" active-color="light-blue-darken-4" :value="file.path" rounded="xl" @click="() => {
                   selectedItem = file.path;
                 }">
