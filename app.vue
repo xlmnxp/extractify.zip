@@ -156,7 +156,7 @@ function onSelectEnd(e: any) {
         :selectFromInside="false" :toggleContinueSelect="'shift'" @select="onSelectStart" @selectStart="onSelectStart"
         :get-element-rect="getElementInfo"
         @selectEnd="onSelectEnd" />
-      <h1 v-if="!files.length">Drag compressed files here</h1>
+      <h1 v-if="!files.length">Drag and Drop compressed files here</h1>
     </v-main>
   </v-layout>
 </template>
