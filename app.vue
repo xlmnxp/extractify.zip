@@ -129,7 +129,6 @@ function onSelectEnd(e: any) {
       </v-toolbar>
       <TreeView :filesList="filesList" :nav=true></TreeView>
     </v-navigation-drawer>
-
     <v-main class="select-area" style="height: 100vh;">
       <v-toolbar class="px-5" density="comfortable">
         <v-text-field hide-details single-line placeholder="location" v-model="selectedItem"></v-text-field>

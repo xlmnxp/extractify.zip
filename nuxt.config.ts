@@ -1,4 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+
+;(global as any).CSS = { supports: () => false } 
+
 export default defineNuxtConfig({
     css: [
         'vuetify/lib/styles/main.sass',
