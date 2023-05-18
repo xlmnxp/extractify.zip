@@ -120,8 +120,7 @@ function onSelectEnd(e: any) {
       <v-toolbar-title>Uncompressed File</v-toolbar-title>
       <v-spacer></v-spacer>
     </v-app-bar>
-
-    <v-navigation-drawer v-model="drawer" floating permanent>
+    <v-navigation-drawer v-model="drawer" :permanent="!$vuetify.display.xs">
       <v-toolbar density="comfortable" title="Files">
         <template v-slot:prepend>
           <v-btn icon="mdi-home" @click="selectedItem = '/'"></v-btn>
@@ -138,9 +137,10 @@ function onSelectEnd(e: any) {
           <v-list :selected="[selectedItem]">
             <v-row no-gutters>
               <v-col cols="6" sm="2" v-for="file of filesGridList" style="text-align: center;">
-                <v-list-item class="ma-2 pa-5 selectable" active-color="light-blue-darken-4" :value="file.path" rounded="xl" @click="() => {
-                  selectedItem = file.path;
-                }">
+                <v-list-item class="ma-2 pa-5 selectable" active-color="light-blue-darken-4" :value="file.path"
+                  rounded="xl" @click="() => {
+                    selectedItem = file.path;
+                  }">
                   <v-avatar class="mb-2" :color="file.isFolder ? 'light-blue-accent-4' : 'blue-grey-darken-1'">
                     <v-icon color="white">{{ file.isFolder ? 'mdi-folder' : 'mdi-file' }}</v-icon>
                   </v-avatar>
@@ -154,9 +154,24 @@ function onSelectEnd(e: any) {
 
       <VueSelecto :selectableTargets="['.selectable']" :dragContainer="dragContainer" :hitRate="20"
         :selectFromInside="false" :toggleContinueSelect="'shift'" @select="onSelectStart" @selectStart="onSelectStart"
-        :get-element-rect="getElementInfo"
-        @selectEnd="onSelectEnd" />
-      <h1 v-if="!files.length">Drag and Drop compressed files here</h1>
+        :get-element-rect="getElementInfo" @selectEnd="onSelectEnd" />
+      <template v-if="!files.length">
+        <!-- tutorial drag and drop zipped file here and review it securely -->
+        <v-container fill-height fluid>
+          <v-row align="center" justify="center">
+            <v-col cols="12" sm="6" md="4">
+              <v-card class="mx-auto" max-width="500">
+                <!-- v-icon for file -->
+                <v-icon class="mx-auto" size="100">mdi-file</v-icon>
+                <v-card-title>Drag and Drop Archived Files</v-card-title>
+                <v-card-text>
+                  Drop your file here to review it securely.
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>        
+      </template>
     </v-main>
   </v-layout>
 </template>
@@ -166,7 +181,7 @@ function onSelectEnd(e: any) {
 }
 
 .selected {
-  border: 2px solid rgba(48,150,243, 0.95);
-  background: rgba(48,150,243, 0.1);
+  border: 2px solid rgba(48, 150, 243, 0.95);
+  background: rgba(48, 150, 243, 0.1);
 }
 </style>
