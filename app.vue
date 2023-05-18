@@ -136,7 +136,6 @@ function onSelectEnd(e: any) {
     <v-app-bar color="light-blue-darken-1">
       <v-btn variant="text" icon="mdi-menu" v-slot:prepend @click="drawer = !drawer"></v-btn>
       <v-toolbar-title>Uncompressed File</v-toolbar-title>
-      <v-spacer></v-spacer>
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" :permanent="!display.xs">
       <v-toolbar density="comfortable" title="Files">
