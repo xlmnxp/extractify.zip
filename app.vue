@@ -135,7 +135,7 @@ function onSelectEnd(e: any) {
   <v-layout @drop.prevent="onDrop">
     <v-app-bar color="light-blue-darken-1">
       <v-btn variant="text" icon="mdi-menu" v-slot:prepend @click="drawer = !drawer"></v-btn>
-      <v-toolbar-title>Uncompressed File</v-toolbar-title>
+      <v-toolbar-title>Extractify.zip</v-toolbar-title>
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" :permanent="!display.xs">
       <v-toolbar density="comfortable" title="Files">
