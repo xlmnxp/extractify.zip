@@ -41,6 +41,7 @@ watchEffect(async () => {
 })
 
 function onDrop(e: any) {
+  if(!e.dataTransfer.files.length) return;
   files.value = e.dataTransfer.files;
   selectedItem.value = '/';
 }
@@ -87,28 +88,43 @@ function getFile(path: string, innerList = undefined): any {
 }
 
 let filesGridList = ref<any>([])
+let selectedList = ref<any>([])
 
 watchEffect(() => {
   filesGridList.value = getFile(selectedItem.value)?.content || [];
+  selectedList.value = [];
+
+  for (const selectedElement of document.querySelectorAll(".selectable.selected")) {
+    selectedElement.classList.remove("selected");
+  }
 })
+
+watchEffect(() => {
+  console.log(selectedList.value)
+})
+
 
 let dragContainer = document.querySelector(".select-area");
 
 function onSelectStart(e: any) {
   e.added.forEach((el: any) => {
     el.classList.add("selected");
+    selectedList.value = [...selectedList.value, el?.__vnode?.ctx?.props?.value];
   });
   e.removed.forEach((el: any) => {
     el.classList.remove("selected");
+    selectedList.value = selectedList.value.filter((value: string) => value != el?.__vnode?.ctx?.props?.value)
   });
 }
 
 function onSelectEnd(e: any) {
   e.afterAdded.forEach((el: any) => {
     el.classList.add("selected");
+    selectedList.value = [...selectedList.value, el?.__vnode?.ctx?.props?.value];
   });
   e.afterRemoved.forEach((el: any) => {
     el.classList.remove("selected");
+    selectedList.value = selectedList.value.filter((value: string) => value != el?.__vnode?.ctx?.props?.value)
   });
 }
 
@@ -136,9 +152,9 @@ function onSelectEnd(e: any) {
         <v-container>
           <v-list :selected="[selectedItem]">
             <v-row no-gutters>
-              <v-col cols="6" sm="2" v-for="file of filesGridList" style="text-align: center;">
+              <v-col cols="6" lg="2" md="3" sm="6" v-for="file of filesGridList" style="text-align: center;">
                 <v-list-item class="ma-2 pa-5 selectable" active-color="light-blue-darken-4" :value="file.path"
-                  rounded="xl" @click="() => {
+                  rounded @click="() => {
                     selectedItem = file.path;
                   }">
                   <v-avatar class="mb-2" :color="file.isFolder ? 'light-blue-accent-4' : 'blue-grey-darken-1'">
@@ -151,10 +167,11 @@ function onSelectEnd(e: any) {
           </v-list>
         </v-container>
       </template>
-
+      
       <VueSelecto :selectableTargets="['.selectable']" :dragContainer="dragContainer" :hitRate="20"
         :selectFromInside="false" :toggleContinueSelect="'shift'" @select="onSelectStart" @selectStart="onSelectStart"
         :get-element-rect="getElementInfo" @selectEnd="onSelectEnd" />
+        
       <template v-if="!files.length">
         <!-- tutorial drag and drop zipped file here and review it securely -->
         <v-container fill-height fluid>
