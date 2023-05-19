@@ -11,18 +11,21 @@ Archive.init({
 
 let display = useDisplay();
 let drawer = ref(!display.xs.value);
+let loadingModel = ref(false);
 let files = ref([]);
 
 let filesList = ref<any>([]);
 let selectedItem = useSelectedItem();
+let filesGridList = ref<any>([])
+let selectedList = ref<any>([])
 
 watchEffect(async () => {
   if (files.value?.[0]) {
+    loadingModel.value = true;
     filesList.value = [];
 
     const archive = await Archive.open(files.value[0]);
 
-    // console.log(await archive.getFilesObject())
     let extractedFiles = await archive.getFilesObject();
 
     let getContent = (fileList: any, path = ''): any => {
@@ -39,6 +42,7 @@ watchEffect(async () => {
     filesList.value = getContent(extractedFiles)?.sort((a: any, b: any) => {
       return b.isFolder - a.isFolder
     });
+    loadingModel.value = false;
   }
 })
 
@@ -88,9 +92,6 @@ function getFile(path: string, innerList = undefined): any {
 
   return undefined;
 }
-
-let filesGridList = ref<any>([])
-let selectedList = ref<any>([])
 
 watchEffect(() => {
   filesGridList.value = getFile(selectedItem.value)?.content || [];
@@ -194,6 +195,22 @@ function onSelectEnd(e: any) {
         </v-container>        
       </template>
     </v-main>
+    <v-dialog
+      v-model="loadingModel"
+      persistent
+      width="auto"
+    >
+      <v-card>
+        <v-card-text>
+          Please stand by
+          <v-progress-linear
+            indeterminate
+            color="light-blue-darken-1"
+            class="mb-0"
+          ></v-progress-linear>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-layout>
 </template>
 <style>
