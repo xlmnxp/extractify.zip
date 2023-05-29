@@ -10,7 +10,7 @@ Archive.init({
 });
 
 let display = useDisplay();
-let drawer = ref(!display.xs.value);
+let drawer = ref(!display.mdAndDown.value);
 let loadingModel = ref(false);
 let files = ref([]);
 
