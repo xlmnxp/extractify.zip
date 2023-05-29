@@ -22,6 +22,7 @@
     "moveable": "^0.47.7",
     "sass": "^1.62.1",
     "selecto": "^1.22.3",
+    "stateshot": "^1.3.5",
     "uuid": "^9.0.0",
     "vue3-selecto": "^1.8.4",
     "vuetify": "^3.2.4"

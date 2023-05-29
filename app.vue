@@ -17,7 +17,8 @@ let files = ref([]);
 let filesList = ref<any>([]);
 let selectedItem = useSelectedItem();
 let filesGridList = ref<any>([])
-let selectedList = ref<any>([])
+let selectedList = ref<any>([]);
+let history = new HistorySwitcher(selectedItem);
 
 watchEffect(async () => {
   if (files.value?.[0]) {
@@ -47,7 +48,7 @@ watchEffect(async () => {
 })
 
 function onDrop(e: any) {
-  if(!e.dataTransfer.files.length) return;
+  if (!e.dataTransfer.files.length) return;
   files.value = e.dataTransfer.files;
   selectedItem.value = '/';
 }
@@ -102,11 +103,6 @@ watchEffect(() => {
   }
 })
 
-watchEffect(() => {
-  console.log(selectedList.value)
-})
-
-
 let dragContainer = document.querySelector(".select-area");
 
 function onSelectStart(e: any) {
@@ -131,6 +127,16 @@ function onSelectEnd(e: any) {
   });
 }
 
+// step up from current path
+function stepUp(path: string) {
+  let pathArray = path.split("/");
+  if(path.endsWith("/")) {
+    pathArray.pop();
+  }
+  pathArray.pop();
+  return (pathArray.join("/") || "")+ "/";
+}
+
 </script>
 <template>
   <v-layout @drop.prevent="onDrop">
@@ -147,16 +153,30 @@ function onSelectEnd(e: any) {
       <TreeView :filesList="filesList" :nav=true></TreeView>
     </v-navigation-drawer>
     <v-main class="select-area" style="height: 100vh;">
-      <v-toolbar class="px-5" density="comfortable">
-        <v-text-field hide-details single-line placeholder="location" v-model="selectedItem"></v-text-field>
+      <v-toolbar class="px-5" height="auto">
+
+        <v-row align="center" justify="center">
+          <v-col cols="12" lg="2" md="12">
+            <v-btn title="Back" aria-label="Back" icon="mdi-arrow-left" :disabled="!history.hasUndo.value"
+              @click="history.undo()"></v-btn>
+            <v-btn title="Forward" aria-label="Forward" icon="mdi-arrow-right" :disabled="!history.hasRedo.value"
+              @click="history.redo()"></v-btn>
+            <v-btn title="Refresh" aria-label="Refresh" icon="mdi-refresh" @click="history.refresh()"></v-btn>
+            <v-btn title="Parent Folder" aria-label="Parent Folder" icon="mdi-arrow-up"
+              :disabled="selectedItem == '/'" @click="selectedItem = stepUp(selectedItem)"></v-btn>
+          </v-col>
+          <v-col cols="12" lg="10" md="12">
+            <v-text-field hide-details single-line placeholder="location" v-model="selectedItem"></v-text-field>
+          </v-col>
+        </v-row>
       </v-toolbar>
       <template v-if="selectedItem.endsWith('/')">
         <v-container>
           <v-list :selected="[selectedItem]">
             <v-row no-gutters>
               <v-col cols="6" lg="2" md="3" sm="6" v-for="file of filesGridList" style="text-align: center;">
-                <v-list-item class="ma-2 pa-5 selectable" active-color="light-blue-darken-4" :value="file.path"
-                  rounded @click="() => {
+                <v-list-item class="ma-2 pa-5 selectable" active-color="light-blue-darken-4" :value="file.path" rounded
+                  @click="() => {
                     selectedItem = file.path;
                   }">
                   <v-avatar class="mb-2" :color="file.isFolder ? 'light-blue-accent-4' : 'blue-grey-darken-1'">
@@ -169,11 +189,11 @@ function onSelectEnd(e: any) {
           </v-list>
         </v-container>
       </template>
-      
+
       <VueSelecto :selectableTargets="['.selectable']" :dragContainer="dragContainer" :hitRate="20"
         :selectFromInside="false" :toggleContinueSelect="'ctrl'" @select="onSelectStart" @selectStart="onSelectStart"
         :get-element-rect="getElementInfo" @selectEnd="onSelectEnd" />
-        
+
       <template v-if="!files.length">
         <!-- tutorial drag and drop zipped file here and review it securely -->
         <v-container fill-height fluid>
@@ -188,26 +208,19 @@ function onSelectEnd(e: any) {
                 </v-card-text>
 
                 <!-- file input -->
-                <v-file-input class="mx-5" v-model="files" accept=".zip,.7z,.rar,.tar.bz2,.tar.gz,.tar.xz" label="or select a file..." variant="outlined"></v-file-input>
+                <v-file-input class="mx-5" v-model="files" accept=".zip,.7z,.rar,.tar.bz2,.tar.gz,.tar.xz"
+                  label="or select a file..." variant="outlined"></v-file-input>
               </v-card>
             </v-col>
           </v-row>
-        </v-container>        
+        </v-container>
       </template>
     </v-main>
-    <v-dialog
-      v-model="loadingModel"
-      persistent
-      width="auto"
-    >
+    <v-dialog v-model="loadingModel" persistent width="auto">
       <v-card>
         <v-card-text>
           Please stand by
-          <v-progress-linear
-            indeterminate
-            color="light-blue-darken-1"
-            class="mb-0"
-          ></v-progress-linear>
+          <v-progress-linear indeterminate color="light-blue-darken-1" class="mb-0"></v-progress-linear>
         </v-card-text>
       </v-card>
     </v-dialog>
