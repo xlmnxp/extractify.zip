@@ -5,7 +5,7 @@ export default defineNuxtConfig({
             title: 'Extractify - Extract compressed files online and securely',
             titleTemplate: '%s - Extractify',
         }
-    }
+    },
     css: [
         'vuetify/lib/styles/main.css',
         '@mdi/font/css/materialdesignicons.min.css'
