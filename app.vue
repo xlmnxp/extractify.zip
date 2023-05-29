@@ -171,7 +171,7 @@ function onSelectEnd(e: any) {
       </template>
       
       <VueSelecto :selectableTargets="['.selectable']" :dragContainer="dragContainer" :hitRate="20"
-        :selectFromInside="false" :toggleContinueSelect="'shift'" @select="onSelectStart" @selectStart="onSelectStart"
+        :selectFromInside="false" :toggleContinueSelect="'ctrl'" @select="onSelectStart" @selectStart="onSelectStart"
         :get-element-rect="getElementInfo" @selectEnd="onSelectEnd" />
         
       <template v-if="!files.length">
