@@ -203,8 +203,11 @@ function stepUp(path: string) {
                 <!-- v-icon for file -->
                 <v-icon class="mx-auto" size="100">mdi-file</v-icon>
                 <v-card-title>Drag and Drop Compressed Files</v-card-title>
-                <v-card-text>
-                  Review them securely.
+                <v-card-text class="font-weight-bold">
+                  Extract and Explore compressed files online and securely.
+                  <p class="text-subtitle-2 font-weight-regular text-medium-emphasis">
+                    <v-icon class="mx-auto" size="1em" color="#007B4F">mdi-shield</v-icon> <strong>nothing</strong> leave your browser
+                  </p>
                 </v-card-text>
 
                 <!-- file input -->
