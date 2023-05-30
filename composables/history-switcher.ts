@@ -72,4 +72,9 @@ export class HistorySwitcher {
     refresh() {
         this.path.value = this.history.value[this.index.value]
     }
+
+    reset() {
+        this.history.value = [this.path.value]
+        this.index.value = 0
+    }
 }

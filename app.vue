@@ -130,11 +130,11 @@ function onSelectEnd(e: any) {
 // step up from current path
 function stepUp(path: string) {
   let pathArray = path.split("/");
-  if(path.endsWith("/")) {
+  if (path.endsWith("/")) {
     pathArray.pop();
   }
   pathArray.pop();
-  return (pathArray.join("/") || "")+ "/";
+  return (pathArray.join("/") || "") + "/";
 }
 
 </script>
@@ -156,17 +156,35 @@ function stepUp(path: string) {
       <v-toolbar class="px-5" height="auto">
 
         <v-row align="center" justify="center">
-          <v-col cols="12" lg="2" md="12">
+          <v-col cols="12" lg="2" md="12" style="display: inline-flex;">
             <v-btn title="Back" aria-label="Back" icon="mdi-arrow-left" :disabled="!history.hasUndo.value"
-              @click="history.undo()"></v-btn>
+              @click="history.undo();"></v-btn>
             <v-btn title="Forward" aria-label="Forward" icon="mdi-arrow-right" :disabled="!history.hasRedo.value"
-              @click="history.redo()"></v-btn>
-            <v-btn title="Refresh" aria-label="Refresh" icon="mdi-refresh" @click="history.refresh()"></v-btn>
-            <v-btn title="Parent Folder" aria-label="Parent Folder" icon="mdi-arrow-up"
-              :disabled="selectedItem == '/'" @click="selectedItem = stepUp(selectedItem)"></v-btn>
+              @click="history.redo();"></v-btn>
+            <v-btn title="Refresh" aria-label="Refresh" icon="mdi-refresh" :disabled="!files.length"
+              @click="history.refresh();"></v-btn>
+            <v-btn title="Parent Folder" aria-label="Parent Folder" icon="mdi-arrow-up" :disabled="selectedItem == '/'"
+              @click="selectedItem = stepUp(selectedItem);"></v-btn>
           </v-col>
-          <v-col cols="12" lg="10" md="12">
-            <v-text-field hide-details single-line placeholder="location" v-model="selectedItem"></v-text-field>
+          <v-col cols="11" lg="9" md="11">
+            <v-text-field :disabled="!files.length" hide-details title="Location" single-line placeholder="location"
+              v-model="selectedItem"></v-text-field>
+          </v-col>
+          <v-col cols="1">
+            <v-menu>
+              <template v-slot:activator="{ props }">
+                <v-btn :disabled="!files.length" title="Menu" aria-label="Menu" icon="mdi-dots-vertical"
+                  v-bind="props"></v-btn>
+              </template>
+              <v-list>
+                <v-list-item title="Close" aria-label="Close" icon="mdi-close"
+                  @click="files = []; selectedItem = '/'; selectedList = []; filesGridList = []; filesList = []; history.reset()">
+                  <template v-slot:prepend>
+                    <v-icon icon="mdi-close"></v-icon>
+                  </template>
+                </v-list-item>
+              </v-list>
+            </v-menu>
           </v-col>
         </v-row>
       </v-toolbar>
@@ -206,7 +224,8 @@ function stepUp(path: string) {
                 <v-card-text class="font-weight-bold">
                   Extract and Explore compressed files online and securely.
                   <p class="text-subtitle-2 font-weight-regular text-medium-emphasis">
-                    <v-icon class="mx-auto" size="1em" color="#007B4F">mdi-shield</v-icon> <strong>nothing</strong> leave your browser
+                    <v-icon class="mx-auto" size="1em" color="#007B4F">mdi-shield</v-icon> <strong>nothing</strong> leave
+                    your browser
                   </p>
                 </v-card-text>
 
