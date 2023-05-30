@@ -194,8 +194,7 @@ function stepUp(path: string) {
             <v-row no-gutters>
               <v-col cols="6" lg="2" md="3" sm="6" v-for="file of filesGridList" style="text-align: center;">
                 <v-list-item class="ma-2 pa-5 selectable" active-color="light-blue-darken-4" :value="file.path" rounded
-                  @click="selectedItem = file.path"
-                  @touch="selectedItem = file.path">
+                  @click.native="selectedItem = file.path">
                   <v-avatar class="mb-2" :color="file.isFolder ? 'light-blue-accent-4' : 'blue-grey-darken-1'">
                     <v-icon color="white">{{ file.isFolder ? 'mdi-folder' : 'mdi-file' }}</v-icon>
                   </v-avatar>
@@ -253,7 +252,6 @@ function stepUp(path: string) {
 }
 
 .selected {
-  border: 2px solid rgba(48, 150, 243, 0.95);
   background: rgba(48, 150, 243, 0.1);
 }
 </style>
