@@ -152,7 +152,7 @@ function stepUp(path: string) {
       </v-toolbar>
       <TreeView :filesList="filesList" :nav=true></TreeView>
     </v-navigation-drawer>
-    <v-main class="select-area" style="height: 100vh;">
+    <v-main class="select-area" style="height: 100dvh;">
       <v-toolbar class="px-5" height="auto">
 
         <v-row align="center" justify="center">
