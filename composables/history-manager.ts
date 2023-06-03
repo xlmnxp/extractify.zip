@@ -1,5 +1,5 @@
 // class to manage undo and redo history
-export class HistorySwitcher {
+export class HistoryManager {
     // path to the current file
     public path: Ref<String>
     // history of paths
@@ -11,7 +11,7 @@ export class HistorySwitcher {
     public readonly hasRedo: ComputedRef<boolean> = computed(() => this.index.value !== this.history.value.length - 1);
     
     // constructor
-    constructor(path: Ref<String>) {
+    constructor(path: Ref<String>, fileList: Ref<String[]>) {
         this.path = path
         this.history = ref([path.value])
         this.index = ref(0);

@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import { Archive } from 'libarchive.js/main.js';
-import { CompressedFile } from 'libarchive.js/src/compressed-file';
 import { getElementInfo } from "moveable";
 import { VueSelecto } from "vue3-selecto";
 import { useDisplay } from 'vuetify/lib/framework.mjs';
+import { HistoryManager } from './composables/history-manager';
+import { FilesManager } from './composables/files-manager';
 
-Archive.init({
-  workerUrl: '/worker-bundle.js',
-});
 
 let display = useDisplay();
 let drawer = ref(!display.mdAndDown.value);
@@ -18,31 +15,16 @@ let filesList = ref<any>([]);
 let selectedItem = useSelectedItem();
 let filesGridList = ref<any>([])
 let selectedList = ref<any>([]);
-let history = new HistorySwitcher(selectedItem);
+let history = new HistoryManager(selectedItem, filesList);
+let fileManager = new FilesManager(filesList);
 
 watchEffect(async () => {
   if (files.value?.[0]) {
     loadingModel.value = true;
     filesList.value = [];
 
-    const archive = await Archive.open(files.value[0]);
+    fileManager.loadArchive(files.value?.[0]);
 
-    let extractedFiles = await archive.getFilesObject();
-
-    let getContent = (fileList: any, path = ''): any => {
-      return Object.keys(fileList).map(file => ({
-        name: file,
-        path: `${path}/${file}${!(fileList[file] instanceof File || fileList[file] instanceof CompressedFile) ? '/' : ''}`,
-        isFolder: !(fileList[file] instanceof File || fileList[file] instanceof CompressedFile),
-        content: !(fileList[file] instanceof File || fileList[file] instanceof CompressedFile) && fileList[file] ? getContent(fileList[file], `${path}/${file}`)?.sort((a: any, b: any) => {
-          return b.isFolder - a.isFolder
-        }) : fileList[file]
-      }))
-    }
-
-    filesList.value = getContent(extractedFiles)?.sort((a: any, b: any) => {
-      return b.isFolder - a.isFolder
-    });
     loadingModel.value = false;
   }
 })
@@ -71,33 +53,9 @@ onUnmounted(() => {
   })
 })
 
-function getFile(path: string, innerList = undefined): any {
-  if (path == "/") {
-    return {
-      content: filesList.value
-    };
-  }
-
-  for (const file of (innerList || filesList.value)) {
-    if (file.path == path) {
-      return file;
-    }
-
-    if (file.isFolder && path.includes(file.path)) {
-      let recursiveFile = getFile(path, file.content);
-      if (recursiveFile) {
-        return recursiveFile;
-      }
-    }
-  }
-
-  return undefined;
-}
-
 watchEffect(() => {
-  filesGridList.value = getFile(selectedItem.value)?.content || [];
+  filesGridList.value = fileManager.getFile(selectedItem.value)?.content || [];
   selectedList.value = [];
-
   for (const selectedElement of document.querySelectorAll(".selectable.selected")) {
     selectedElement.classList.remove("selected");
   }
@@ -188,7 +146,7 @@ function stepUp(path: string) {
           </v-col>
         </v-row>
       </v-toolbar>
-      <template v-if="selectedItem.endsWith('/')">
+      <template v-if="fileManager.getFile(selectedItem)?.isFolder || false">
         <v-container>
           <v-list :selected="[selectedItem]">
             <v-row no-gutters>
