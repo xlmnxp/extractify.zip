@@ -59,28 +59,43 @@ export class FilesManager {
 
         // sort unorganized files by depth
         unorganizedFiles = unorganizedFiles.sort((a, b) => {
-            if (a.path.split("/").length > b.path.split("/").length) return -1;
-            if (a.path.split("/").length < b.path.split("/").length) return 1;
+            const aPathArray = a.path.split("/");
+            const bPathArray = b.path.split("/");
+            if (aPathArray.length > bPathArray.length) return -1;
+            if (aPathArray.length < bPathArray.length) return 1;
             return 0;
         });
 
         // sort files and folder inside each folder
+        const pathArrays: any = {};
         for (let file of unorganizedFiles) {
             // get parent folder file
-            let parentFolderFile = unorganizedFiles.find(_file => _file.path == file.path.substring(0, file.path.lastIndexOf("/")));
+            const parentPath = file.path.substring(0, file.path.lastIndexOf("/"));
+            const parentFolderFile = pathArrays[parentPath] || unorganizedFiles.find(_file => _file.path === parentPath);
             if (!parentFolderFile) continue;
 
             // add file to parent folder content
-            parentFolderFile.content!.push(file);
+            if (!parentFolderFile.content) parentFolderFile.content = [];
+            parentFolderFile.content.push(file);
+
+            // cache split path array to avoid calling split() multiple times
+            const pathArray = pathArrays[file.path] || file.path.split("/");
+            pathArrays[file.path] = pathArray;
+
+            parentFolderFile.content = parentFolderFile.content.sort((a:any, b:any) => {
+                // sort by folder and from a to z
+                if (a.isFolder && !b.isFolder) return -1;
+                if (!a.isFolder && b.isFolder) return 1;
+                if (a.name < b.name) return -1;
+                if (a.name > b.name) return 1;
+                return 0;
+            });
         }
 
         // remove folders from root
-        console.log(unorganizedFiles);
-        let files = unorganizedFiles.filter(file => file.path.split("/").length <= 2);
-        console.log(files);
-
+        const files = unorganizedFiles.filter(file => (file.path.match(/\//g) || []).length == 1);
+        console.log({files});
         this.filesList.value = files;
-
 
         return files;
     }
@@ -106,26 +121,26 @@ export class FilesManager {
     }
 
     getFile(path: string, innerList = undefined): any {
-      if (path == "/") {
-        return {
-          content: this.filesList.value,
-          isFolder: true,
-        };
-      }
+        if (path == "/") {
+            return {
+                content: this.filesList.value,
+                isFolder: true,
+            };
+        }
 
-      for (const file of (innerList || this.filesList.value)) {
-        if (file.path == path) {
-          return file;
+        for (const file of (innerList || this.filesList.value)) {
+            if (file.path == path) {
+                return file;
+            }
+
+            if (file.isFolder && path.includes(file.path)) {
+                let recursiveFile = this.getFile(path, file.content);
+                if (recursiveFile) {
+                    return recursiveFile;
+                }
+            }
         }
-    
-        if (file.isFolder && path.includes(file.path)) {
-          let recursiveFile = this.getFile(path, file.content);
-          if (recursiveFile) {
-            return recursiveFile;
-          }
-        }
-      }
-    
-      return undefined;
+
+        return undefined;
     }
 }

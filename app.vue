@@ -124,11 +124,11 @@ function stepUp(path: string) {
             <v-btn title="Parent Folder" aria-label="Parent Folder" icon="mdi-arrow-up" :disabled="selectedItem == '/'"
               @click="selectedItem = stepUp(selectedItem);"></v-btn>
           </v-col>
-          <v-col cols="11" lg="9" md="11">
+          <v-col cols="10" lg="8" md="10">
             <v-text-field :disabled="!files.length" hide-details title="Location" single-line placeholder="location"
               v-model="selectedItem"></v-text-field>
           </v-col>
-          <v-col cols="1">
+          <v-col cols="2">
             <v-menu>
               <template v-slot:activator="{ props }">
                 <v-btn :disabled="!files.length" title="Menu" aria-label="Menu" icon="mdi-dots-vertical"
