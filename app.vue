@@ -54,7 +54,7 @@ onUnmounted(() => {
 
 watchEffect(() => {
   const file = filesManager.getFile(selectedPath.value);
-  filesGridList.value = file?.isFolder ? file.content : [];
+  filesGridList.value = file?.content;
 
   selectedList.value = [];
   for (const selectedElement of document.querySelectorAll(".selectable.selected")) {

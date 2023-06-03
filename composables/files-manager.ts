@@ -144,7 +144,7 @@ export class FilesManager {
 
         for (const file of (innerList || this.filesList.value)) {
             if (file.path == path) {
-                file.content = file.content.sort((a:any, b:any) => {
+                file.content = file.content?.sort((a:any, b:any) => {
                     // sort by folder and from a to z
                     if (a.isFolder && !b.isFolder) return -1;
                     if (!a.isFolder && b.isFolder) return 1;
@@ -157,7 +157,7 @@ export class FilesManager {
             }
 
             if (file.isFolder && path.includes(file.path)) {
-                let recursiveFile = this.getFile(path, file.content);
+                const recursiveFile = this.getFile(path, file.content);
                 if (recursiveFile) {
                     return recursiveFile;
                 }
