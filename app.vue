@@ -92,7 +92,7 @@ function stepUp(path: string) {
     pathArray.pop();
   }
   pathArray.pop();
-  return (pathArray.join("/") || "") + "/";
+  return (pathArray.join("/") || "/");
 }
 
 </script>
