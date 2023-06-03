@@ -59,10 +59,10 @@ export class FilesManager {
 
         // sort unorganized files by depth
         unorganizedFiles = unorganizedFiles.sort((a, b) => {
-            const aPathArray = a.path.split("/");
-            const bPathArray = b.path.split("/");
-            if (aPathArray.length > bPathArray.length) return -1;
-            if (aPathArray.length < bPathArray.length) return 1;
+            const aPathArrayLength = (a.path.match(/\//g) || []).length;
+            const bPathArrayLength = (b.path.match(/\//g) || []).length;
+            if (aPathArrayLength > bPathArrayLength) return -1;
+            if (aPathArrayLength < bPathArrayLength) return 1;
             return 0;
         });
 
@@ -71,8 +71,17 @@ export class FilesManager {
         for (let file of unorganizedFiles) {
             // get parent folder file
             const parentPath = file.path.substring(0, file.path.lastIndexOf("/"));
-            const parentFolderFile = pathArrays[parentPath] || unorganizedFiles.find(_file => _file.path === parentPath);
-            if (!parentFolderFile) continue;
+            let parentFolderFile = pathArrays[parentPath] || unorganizedFiles.find(_file => _file.path === parentPath);
+            if (!parentFolderFile) {
+                unorganizedFiles.push({
+                    name: parentPath.substring(parentPath.lastIndexOf('/') + 1),
+                    path: parentPath,
+                    isFolder: true,
+                    content: [],
+                });
+
+                parentFolderFile = unorganizedFiles.find(_file => _file.path === parentPath);
+            };
 
             // add file to parent folder content
             if (!parentFolderFile.content) parentFolderFile.content = [];
@@ -81,20 +90,18 @@ export class FilesManager {
             // cache split path array to avoid calling split() multiple times
             const pathArray = pathArrays[file.path] || file.path.split("/");
             pathArrays[file.path] = pathArray;
-
-            parentFolderFile.content = parentFolderFile.content.sort((a:any, b:any) => {
-                // sort by folder and from a to z
-                if (a.isFolder && !b.isFolder) return -1;
-                if (!a.isFolder && b.isFolder) return 1;
-                if (a.name < b.name) return -1;
-                if (a.name > b.name) return 1;
-                return 0;
-            });
         }
 
         // remove folders from root
-        const files = unorganizedFiles.filter(file => (file.path.match(/\//g) || []).length == 1);
-        console.log({files});
+        const files = unorganizedFiles.filter(file => (file.path.match(/\//g) || []).length == 1).sort((a:any, b:any) => {
+            // sort by folder and from a to z
+            if (a.isFolder && !b.isFolder) return -1;
+            if (!a.isFolder && b.isFolder) return 1;
+            if (a.name < b.name) return -1;
+            if (a.name > b.name) return 1;
+            return 0;
+        });
+
         this.filesList.value = files;
 
         return files;
@@ -123,13 +130,29 @@ export class FilesManager {
     getFile(path: string, innerList = undefined): any {
         if (path == "/") {
             return {
-                content: this.filesList.value,
+                content: this.filesList.value.sort((a:any, b:any) => {
+                    // sort by folder and from a to z
+                    if (a.isFolder && !b.isFolder) return -1;
+                    if (!a.isFolder && b.isFolder) return 1;
+                    if (a.name < b.name) return -1;
+                    if (a.name > b.name) return 1;
+                    return 0;
+                }),
                 isFolder: true,
             };
         }
 
         for (const file of (innerList || this.filesList.value)) {
             if (file.path == path) {
+                file.content = file.content.sort((a:any, b:any) => {
+                    // sort by folder and from a to z
+                    if (a.isFolder && !b.isFolder) return -1;
+                    if (!a.isFolder && b.isFolder) return 1;
+                    if (a.name < b.name) return -1;
+                    if (a.name > b.name) return 1;
+                    return 0;
+                });
+
                 return file;
             }
 
