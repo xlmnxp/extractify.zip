@@ -6,7 +6,7 @@ import SevenZip, { SevenZipModule } from "7z-wasm";
 export class FilesManager {
     sevenZip?: SevenZipModule;
     consoleOutputBuffer: string[] = [];
-    path: Ref<string> = useSelectedItem();
+    path: Ref<string> = useSelectedPath();
 
     constructor(private filesList: Ref<any[]>) {
         this.init();

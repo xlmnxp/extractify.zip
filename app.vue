@@ -5,25 +5,24 @@ import { useDisplay } from 'vuetify/lib/framework.mjs';
 import { HistoryManager } from './composables/history-manager';
 import { FilesManager } from './composables/files-manager';
 
-
 let display = useDisplay();
 let drawer = ref(!display.mdAndDown.value);
 let loadingModel = ref(false);
 let files = ref([]);
 
 let filesList = ref<any>([]);
-let selectedItem = useSelectedItem();
+let selectedPath = useSelectedPath();
 let filesGridList = ref<any>([])
 let selectedList = ref<any>([]);
-let history = new HistoryManager(selectedItem, filesList);
-let fileManager = new FilesManager(filesList);
+let filesManager = new FilesManager(filesList);
+let history = new HistoryManager(filesManager);
 
 watchEffect(async () => {
   if (files.value?.[0]) {
     loadingModel.value = true;
     filesList.value = [];
 
-    fileManager.loadArchive(files.value?.[0]);
+    filesManager.loadArchive(files.value?.[0]);
 
     loadingModel.value = false;
   }
@@ -32,7 +31,7 @@ watchEffect(async () => {
 function onDrop(e: any) {
   if (!e.dataTransfer.files.length) return;
   files.value = e.dataTransfer.files;
-  selectedItem.value = '/';
+  selectedPath.value = '/';
 }
 
 function preventDefaults(e: any) {
@@ -54,14 +53,16 @@ onUnmounted(() => {
 })
 
 watchEffect(() => {
-  filesGridList.value = fileManager.getFile(selectedItem.value)?.content || [];
+  const file = filesManager.getFile(selectedPath.value);
+  filesGridList.value = file?.isFolder ? file.content : [];
+
   selectedList.value = [];
   for (const selectedElement of document.querySelectorAll(".selectable.selected")) {
     selectedElement.classList.remove("selected");
   }
 })
 
-let dragContainer = document.querySelector(".select-area");
+const dragContainer = document.querySelector(".select-area");
 
 function onSelectStart(e: any) {
   e.added.forEach((el: any) => {
@@ -87,10 +88,7 @@ function onSelectEnd(e: any) {
 
 // step up from current path
 function stepUp(path: string) {
-  let pathArray = path.split("/");
-  if (path.endsWith("/")) {
-    pathArray.pop();
-  }
+  const pathArray = path.split("/");
   pathArray.pop();
   return (pathArray.join("/") || "/");
 }
@@ -105,7 +103,7 @@ function stepUp(path: string) {
     <v-navigation-drawer v-model="drawer" :permanent="!display.xs">
       <v-toolbar density="comfortable" title="Files">
         <template v-slot:prepend>
-          <v-btn icon="mdi-home" @click="selectedItem = '/'"></v-btn>
+          <v-btn icon="mdi-home" @click="selectedPath = '/'"></v-btn>
         </template>
       </v-toolbar>
       <TreeView :filesList="filesList" :nav=true></TreeView>
@@ -121,12 +119,12 @@ function stepUp(path: string) {
               @click="history.redo();"></v-btn>
             <v-btn title="Refresh" aria-label="Refresh" icon="mdi-refresh" :disabled="!files.length"
               @click="history.refresh();"></v-btn>
-            <v-btn title="Parent Folder" aria-label="Parent Folder" icon="mdi-arrow-up" :disabled="selectedItem == '/'"
-              @click="selectedItem = stepUp(selectedItem);"></v-btn>
+            <v-btn title="Parent Folder" aria-label="Parent Folder" icon="mdi-arrow-up" :disabled="selectedPath == '/'"
+              @click="selectedPath = stepUp(selectedPath);"></v-btn>
           </v-col>
           <v-col cols="10" lg="8" md="10">
             <v-text-field :disabled="!files.length" hide-details title="Location" single-line placeholder="location"
-              v-model="selectedItem"></v-text-field>
+              v-model="selectedPath"></v-text-field>
           </v-col>
           <v-col cols="2">
             <v-menu>
@@ -136,7 +134,7 @@ function stepUp(path: string) {
               </template>
               <v-list>
                 <v-list-item title="Close" aria-label="Close" icon="mdi-close"
-                  @click="files = []; selectedItem = '/'; selectedList = []; filesGridList = []; filesList = []; history.reset()">
+                  @click="files = []; selectedPath = '/'; selectedList = []; filesGridList = []; filesList = []; history.reset()">
                   <template v-slot:prepend>
                     <v-icon icon="mdi-close"></v-icon>
                   </template>
@@ -146,13 +144,13 @@ function stepUp(path: string) {
           </v-col>
         </v-row>
       </v-toolbar>
-      <template v-if="fileManager.getFile(selectedItem)?.isFolder || false">
+      <template v-if="filesManager.getFile(selectedPath)?.isFolder || false">
         <v-container>
-          <v-list :selected="[selectedItem]">
+          <v-list :selected="[selectedPath]">
             <v-row no-gutters>
               <v-col cols="6" lg="2" md="3" sm="6" v-for="file of filesGridList" style="text-align: center;">
                 <v-list-item class="ma-2 pa-5 selectable" active-color="light-blue-darken-4" :value="file.path" rounded
-                  @click="selectedItem = file.path">
+                  @click="selectedPath = file.path">
                   <v-avatar class="mb-2" :color="file.isFolder ? 'light-blue-accent-4' : 'blue-grey-darken-1'">
                     <v-icon color="white">{{ file.isFolder ? 'mdi-folder' : 'mdi-file' }}</v-icon>
                   </v-avatar>

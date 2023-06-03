@@ -7,15 +7,15 @@ interface Props {
 }
 
 let {filesList, nav} = defineProps<Props>()
-let selectedItem = useSelectedItem();
+let selectedPath = useSelectedPath();
 
 </script>
 <template>
-    <v-list :selected="[selectedItem]" density="compact" :nav="nav">
+    <v-list :selected="[selectedPath]" density="compact" :nav="nav">
         <template v-for="file in filesList" :key="file.path">
             <v-list-item active-color="light-blue-darken-4" :active=file.active :title="file.name" :subtitle="file.path" :value="file.path"
                 @click="() =>{
-                    selectedItem = file.path;
+                    selectedPath = file.path;
                     file.toggle = !file.toggle;
                 }">
                     <template v-slot:prepend>

@@ -1,2 +1,2 @@
-let selectedItem = ref("/")
-export const useSelectedItem = () => useState("selected-item", () => selectedItem)
+let selectedPath = ref("/")
+export const useSelectedPath = () => useState("selected-path", () => selectedPath)

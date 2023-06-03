@@ -1,28 +1,33 @@
+import { FilesManager } from "./files-manager";
+
 // class to manage undo and redo history
 export class HistoryManager {
     // path to the current file
-    public path: Ref<String>
+    private path: Ref<string> = useSelectedPath();
+
     // history of paths
-    history: Ref<String[]>
+    history: Ref<string[]>
     // index of the current path in the history
     index: Ref<number>
+
 
     public readonly hasUndo: ComputedRef<boolean> = computed(() => this.index.value !== 0);
     public readonly hasRedo: ComputedRef<boolean> = computed(() => this.index.value !== this.history.value.length - 1);
     
     // constructor
-    constructor(path: Ref<String>, fileList: Ref<String[]>) {
-        this.path = path
-        this.history = ref([path.value])
+    constructor(private filesManager: FilesManager) {
+        this.history = ref([this.path.value])
         this.index = ref(0);
 
         watchEffect(() => {
-            this.add(path.value)
+            if(this.filesManager.getFile(this.path.value)) {
+                this.add(this.path.value)
+            }
         })
     }
 
     // add a new path to the history
-    add(path: String) {
+    add(path: string) {
         // if the path is the same as the previous path, do nothing
         if (path === this.history.value[this.index.value]) return
 
