@@ -185,7 +185,7 @@ function stepUp(path: string) {
         </template>
       </v-container>
 
-      <VueSelecto :selectableTargets="['.selectable']" :dragContainer="dragContainer" :hitRate="20"
+      <VueSelecto :selectableTargets="['.selectable']" :dragContainer="dragContainer" :hitRate="0"
         :selectFromInside="false" :toggleContinueSelect="'ctrl'" @select="onSelectStart" @selectStart="onSelectStart"
         :get-element-rect="getElementInfo" @selectEnd="onSelectEnd" :select-by-click="false" />
 
