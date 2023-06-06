@@ -144,8 +144,8 @@ function stepUp(path: string) {
           </v-col>
         </v-row>
       </v-toolbar>
-      <template v-if="filesManager.getFile(selectedPath)?.isFolder || false">
-        <v-container>
+      <v-container>
+        <template v-if="filesManager.getFile(selectedPath)?.isFolder || false">
           <v-list :selected="[selectedPath]">
             <v-row no-gutters>
               <v-col cols="6" lg="2" md="3" sm="6" v-for="file of filesGridList" style="text-align: center;">
@@ -159,16 +159,9 @@ function stepUp(path: string) {
               </v-col>
             </v-row>
           </v-list>
-        </v-container>
-      </template>
-
-      <VueSelecto :selectableTargets="['.selectable']" :dragContainer="dragContainer" :hitRate="20"
-        :selectFromInside="false" :toggleContinueSelect="'ctrl'" @select="onSelectStart" @selectStart="onSelectStart"
-        :get-element-rect="getElementInfo" @selectEnd="onSelectEnd" :select-by-click="false" />
-
-      <template v-if="!files.length">
-        <!-- tutorial drag and drop zipped file here and review it securely -->
-        <v-container fill-height fluid>
+        </template>
+        <template v-if="!files.length">
+          <!-- tutorial drag and drop zipped file here and review it securely -->
           <v-row align="center" justify="center">
             <v-col cols="12">
               <v-card variant="flat" class="mx-auto" max-width="768">
@@ -189,8 +182,13 @@ function stepUp(path: string) {
               </v-card>
             </v-col>
           </v-row>
-        </v-container>
-      </template>
+        </template>
+      </v-container>
+
+      <VueSelecto :selectableTargets="['.selectable']" :dragContainer="dragContainer" :hitRate="20"
+        :selectFromInside="false" :toggleContinueSelect="'ctrl'" @select="onSelectStart" @selectStart="onSelectStart"
+        :get-element-rect="getElementInfo" @selectEnd="onSelectEnd" :select-by-click="false" />
+
     </v-main>
     <v-dialog v-model="loadingModel" persistent width="auto">
       <v-card>

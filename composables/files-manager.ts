@@ -138,7 +138,7 @@ export class FilesManager {
                     if (a.name > b.name) return 1;
                     return 0;
                 }),
-                isFolder: true,
+                isFolder: this.filesList.value.length ? true : false,
             };
         }
 
