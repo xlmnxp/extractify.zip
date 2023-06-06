@@ -47,8 +47,8 @@ export class FilesManager {
 
         // parse files list
         let unorganizedFiles = filesString!.map((fileString) => {
-            let file: RegExpMatchArray = /\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+(?<type>[AD.]+)\s+(?<size>\d+)\s+(?<compressed>\d+)\s+(?<path>.+)[\n\r]{0,}/.exec(fileString)!;
-            let isFolder = file.groups!.type.indexOf("D") > -1 ? true : false;
+            let file: RegExpMatchArray = /[\s+|(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})]\s+(?<type>[AD.]+)\s+(?<size>\d+)\s+(?<compressed>\d+)\s+(?<path>.+)[\n\r]{0,}/.exec(fileString)!;
+            let isFolder = file.groups!.type?.indexOf("D") > -1 ? true : false;
             return {
                 name: file.groups!.path.lastIndexOf('/') > -1 ? file.groups!.path.substring(file.groups!.path.lastIndexOf('/') + 1) : file.groups!.path,
                 path: `/${file.groups!.path}`,
@@ -116,6 +116,7 @@ export class FilesManager {
         while (!breakLoop) {
             await new Promise((resolve) => {
                 if (lastLength == this.consoleOutputBuffer.length) {
+                    breakLoop = true;
                     return;
                 }
 
