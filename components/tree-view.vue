@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { CompressedFile } from 'libarchive.js/src/compressed-file';
+import type { iFile } from '~/composables/worker/7zip-manager';
 
 interface Props {
-    filesList: (File | CompressedFile) & { name: string, path: string, toggle: Boolean, isFolder: Boolean, content: any, active: boolean }[],
+    filesList: iFile[],
     nav: boolean
 }
 
@@ -13,7 +14,7 @@ let selectedPath = useSelectedPath();
 <template>
     <v-list :selected="[selectedPath]" density="compact" :nav="nav">
         <template v-for="file in filesList" :key="file.path">
-            <v-list-item active-color="light-blue-darken-4" :active=file.active :title="file.name" :subtitle="file.path"
+            <v-list-item active-color="light-blue-darken-4" :active="selectedPath == file.path" :title="file.name" :subtitle="file.path"
                 :value="file.path" @click="() => {
                     selectedPath = file.path;
                     file.toggle = !file.toggle;
@@ -27,7 +28,7 @@ let selectedPath = useSelectedPath();
                     <v-icon>{{ `mdi-chevron-${file.toggle ? 'up' : 'down'}` }}</v-icon>
                 </template>
             </v-list-item>
-            <div v-if="file.isFolder && file.toggle"
+            <div v-if="file.isFolder && file.toggle && file.content"
                 :style="`background-color: rgba(0,0,0,0.05);${nav ? `border-radius: 4px;` : ''}`">
                 <TreeView :files-list="file.content" :nav="false"></TreeView>
             </div>

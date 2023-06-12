@@ -4,13 +4,14 @@ import { VueSelecto } from "vue3-selecto";
 import { useDisplay } from 'vuetify/lib/framework.mjs';
 import { HistoryManager } from './composables/history-manager';
 import { FilesManager } from './composables/files-manager';
+import type { iFile } from "composables/worker/7zip-manager" 
 
 let display = useDisplay();
 let drawer = ref(!display.mdAndDown.value);
 let loadingModel = ref(false);
 let files = ref([]);
 
-let filesList = ref<any>([]);
+let filesList = ref<iFile[]>([]);
 let selectedPath = useSelectedPath();
 let filesGridList = ref<any>([])
 let selectedList = ref<any>([]);
@@ -22,7 +23,7 @@ watchEffect(async () => {
     loadingModel.value = true;
     filesList.value = [];
 
-    filesManager.loadArchive(files.value?.[0]);
+    await filesManager.loadArchive(files.value?.[0]);
 
     loadingModel.value = false;
   }
