@@ -20,6 +20,8 @@
   "dependencies": {
     "@mdi/font": "^7.2.96",
     "@types/mime": "^3.0.1",
+    "@vime/core": "^5.4.1",
+    "@vime/vue-next": "^5.4.1",
     "7z-wasm": "^1.0.2",
     "comlink": "^4.4.1",
     "mime": "^3.0.0",

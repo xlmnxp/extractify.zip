@@ -33,8 +33,6 @@ export class SevenZipManager {
                     text = text.substring(text.lastIndexOf("\b") + 1);
                 }
                 this.consoleOutputBuffer.push(text);
-
-                console.log(text);
             },
         });
     }

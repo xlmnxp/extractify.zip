@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import 'vue-plyr/dist/vue-plyr.css';
-// @ts-ignore
-import VuePlyr from 'vue-plyr';
+import '@vime/core/themes/default.css';
+import { Player, DefaultUi, Video } from '@vime/vue-next';
+
 import mime from 'mime';
 
 interface Props {
@@ -12,10 +12,14 @@ let { src } = defineProps<Props>();
 let selectedPath = useSelectedPath();
 
 let videoType = mime.getType(selectedPath.value);
+
 </script>
 <template>
-    <VuePlyr>
-        <video controls playsinline :src="src" :type="videoType!" style="height: 84vh;">
-        </video>
-    </VuePlyr>
+    <Player playsinline style="width: 100%">
+        <Video>
+            <source :data-src="src" :type="videoType!" />
+        </Video>
+        <DefaultUi>
+        </DefaultUi>
+    </Player>
 </template>

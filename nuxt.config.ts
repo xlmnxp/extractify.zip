@@ -2,8 +2,8 @@
 export default defineNuxtConfig({
     app: {
         head: {
-            title: 'Extractify - Extract and Explore compressed files online and securely',
-            titleTemplate: '%s - Extractify',
+            title: 'Extract and Explore compressed files online and securely',
+            titleTemplate: 'Extractify - %s',
         }
     },
     css: [
