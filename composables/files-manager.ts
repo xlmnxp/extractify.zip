@@ -27,7 +27,7 @@ export class FilesManager {
     getFile(path: string, innerList: iFile[] | undefined = undefined): any {
         if (path == "/") {
             return {
-                content: this.filesList.value.sort((a:any, b:any) => {
+                content: this.filesList.value.sort((a: iFile, b: iFile) => {
                     // sort by folder and from a to z
                     if (a.isFolder && !b.isFolder) return -1;
                     if (!a.isFolder && b.isFolder) return 1;
@@ -41,7 +41,7 @@ export class FilesManager {
 
         for (const file of (innerList || this.filesList.value)) {
             if (file.path == path) {
-                file.content = file.content?.sort((a:any, b:any) => {
+                file.content = file.content?.sort((a: iFile, b: iFile) => {
                     // sort by folder and from a to z
                     if (a.isFolder && !b.isFolder) return -1;
                     if (!a.isFolder && b.isFolder) return 1;
@@ -62,5 +62,10 @@ export class FilesManager {
         }
 
         return undefined;
+    }
+
+    async getFileBlobUrl(path: string) {
+        if (!this.remoteSevenZipManager) return;
+        return await this.remoteSevenZipManager.generateBlobUrl(JSON.stringify(this.getFile(path)) as any);
     }
 }

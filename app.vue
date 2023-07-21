@@ -18,6 +18,8 @@ let selectedList = ref<any>([]);
 let filesManager = new FilesManager(filesList);
 let history = new HistoryManager(filesManager);
 
+let mediaBlobUrl = ref('');
+
 watchEffect(async () => {
   if (files.value?.[0]) {
     loadingModel.value = true;
@@ -53,7 +55,7 @@ onUnmounted(() => {
   })
 })
 
-watchEffect(() => {
+watchEffect(async () => {
   const file = filesManager.getFile(selectedPath.value);
   filesGridList.value = file?.content;
 
@@ -61,6 +63,11 @@ watchEffect(() => {
   for (const selectedElement of document.querySelectorAll(".selectable.selected")) {
     selectedElement.classList.remove("selected");
   }
+
+  // Experimental feature
+  // if(['mp4', 'avi', 'mov', 'mkv'].includes(filesManager.getFile(selectedPath.value)?.extension?.toLowerCase())) {
+  //   mediaBlobUrl.value = await filesManager.getFileBlobUrl(selectedPath.value) as string;
+  // }  
 })
 
 const dragContainer = document.querySelector(".select-area");
@@ -161,6 +168,9 @@ function stepUp(path: string) {
             </v-row>
           </v-list>
         </template>
+        <template v-if="!filesManager.getFile(selectedPath)?.isFolder && ['mp4'].includes(filesManager.getFile(selectedPath)?.extension)">
+          <MediaVideoPlayer :src="mediaBlobUrl"></MediaVideoPlayer>
+        </template>
         <template v-if="!files.length">
           <!-- tutorial drag and drop zipped file here and review it securely -->
           <v-row align="center" justify="center">
@@ -189,7 +199,6 @@ function stepUp(path: string) {
       <VueSelecto :selectableTargets="['.selectable']" :dragContainer="dragContainer" :hitRate="0"
         :selectFromInside="false" :toggleContinueSelect="'ctrl'" @select="onSelectStart" @selectStart="onSelectStart"
         :get-element-rect="getElementInfo" @selectEnd="onSelectEnd" :select-by-click="false" />
-
     </v-main>
     <v-dialog v-model="loadingModel" persistent width="auto">
       <v-card>

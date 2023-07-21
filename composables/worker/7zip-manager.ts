@@ -5,18 +5,21 @@ import SevenZip, { SevenZipModule } from "7z-wasm";
 // @ts-expect-error 7z-wasm have that file but typescript can't find it when query it with url
 import SevenZipWasm from "7z-wasm/7zz.wasm?url";
 import * as Comlink from "comlink";
+import mime from 'mime-types';
 
 export interface iFile {
     name: string;
     path: string;
     isFolder: boolean;
     toggle: boolean;
+    extension?: string;
     content?: iFile[];
 }
 
 export class SevenZipManager {
     sevenZip?: SevenZipModule;
     consoleOutputBuffer: string[] = [];
+    archiveName: string = "";
 
     constructor() {
         this.init();
@@ -30,6 +33,8 @@ export class SevenZipManager {
                     text = text.substring(text.lastIndexOf("\b") + 1);
                 }
                 this.consoleOutputBuffer.push(text);
+
+                console.log(text);
             },
         });
     }
@@ -44,16 +49,16 @@ export class SevenZipManager {
     async loadArchive(file: File) {
         if (!this.sevenZip) return;
 
-        const archiveName = file.name;
+        this.archiveName = file.name;
 
-        const stream = this.sevenZip.FS.open(archiveName, "w+");
+        const stream = this.sevenZip.FS.open(this.archiveName, "w+");
         let archiveData = new Uint8Array(await file.arrayBuffer());
 
         this.sevenZip.FS.write(stream, archiveData, 0, archiveData.byteLength);
         this.sevenZip.FS.close(stream);
 
         // 7zip get files list
-        let filesString = this.execute(["l", "-ba", archiveName]);
+        let filesString = this.execute(["l", "-ba", this.archiveName]);
 
         // parse files list
         let unorganizedFiles = filesString!.map((fileString) => {
@@ -63,6 +68,7 @@ export class SevenZipManager {
                 name: file.groups!.path.lastIndexOf('/') > -1 ? file.groups!.path.substring(file.groups!.path.lastIndexOf('/') + 1) : file.groups!.path,
                 path: `/${file.groups!.path}`,
                 isFolder: isFolder ? true : false,
+                extension: isFolder ? "" : file.groups!.path.substring(file.groups!.path.lastIndexOf('.') + 1),
                 content: isFolder ? [] as any[] : undefined,
             }
         });
@@ -87,6 +93,7 @@ export class SevenZipManager {
                     name: parentPath.substring(parentPath.lastIndexOf('/') + 1),
                     path: parentPath,
                     isFolder: true,
+                    extension: "",
                     content: [],
                 });
 
@@ -103,7 +110,7 @@ export class SevenZipManager {
         }
 
         // remove folders from root
-        const files = unorganizedFiles.filter(file => (file.path.match(/\//g) || []).length == 1).sort((a:any, b:any) => {
+        const files = unorganizedFiles.filter(file => (file.path.match(/\//g) || []).length == 1).sort((a: any, b: any) => {
             // sort by folder and from a to z
             if (a.isFolder && !b.isFolder) return -1;
             if (!a.isFolder && b.isFolder) return 1;
@@ -134,6 +141,44 @@ export class SevenZipManager {
         }
 
         return;
+    }
+
+    // generate blob url from buffer (Experimental)
+    async generateBlobUrl(file: iFile) {
+        if (!this.sevenZip) return;
+        file = typeof file === "string" ? JSON.parse(file) : file;
+
+        // override archive name as file name
+        file.path = '/' + this.archiveName;
+
+        this.sevenZip.FS.chdir("/");
+        console.log("Directory content before extracting", this.sevenZip.FS.readdir("/"));
+
+        // extract file from archive
+        this.execute(['x', '-y', this.archiveName, file.path.substring(1)]);
+
+        console.log("Directory content after extracting", this.sevenZip.FS.readdir('/'));
+
+        console.log({
+            file: file.path.substring(1),
+            p: file.path
+        });
+
+        const stream = this.sevenZip.FS.open(file.path, 'r');
+        const stat = this.sevenZip.FS.stat(file.path);
+        const bufferLength = stat.size;
+        const buffer = new Uint8Array(bufferLength);
+        this.sevenZip.FS.read(stream, buffer, 0, bufferLength, 0);
+        this.sevenZip.FS.close(stream);
+
+        console.log({buffer});
+
+        // const blob = new Blob([buffer], { type: mime.lookup(file.extension!) || "application/octet-stream" });
+        // const blobUrl = URL.createObjectURL(blob);
+
+        // console.log({blobUrl});
+
+        return "blobUrl";
     }
 }
 
