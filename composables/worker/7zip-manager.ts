@@ -159,7 +159,8 @@ export class SevenZipManager {
         const blob = new Blob([buffer as unknown as Uint8Array], { type: mime.getType(file.extension!) || "application/octet-stream" });
         const blobUrl = URL.createObjectURL(blob);
 
-        // this.sevenZip.FS.unlink(file.path.substring(1));
+        // remove the file after extract local blob url
+        this.sevenZip.FS.unlink(file.path.substring(1));
 
         return blobUrl;
     }
