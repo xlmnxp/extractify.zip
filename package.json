@@ -19,10 +19,10 @@
   },
   "dependencies": {
     "@mdi/font": "^7.2.96",
-    "@types/mime-types": "^2.1.1",
+    "@types/mime": "^3.0.1",
     "7z-wasm": "^1.0.2",
     "comlink": "^4.4.1",
-    "mime-types": "^2.1.35",
+    "mime": "^3.0.0",
     "moveable": "^0.47.7",
     "sass": "^1.62.1",
     "selecto": "^1.22.3",

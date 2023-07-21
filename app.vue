@@ -18,6 +18,7 @@ let selectedList = ref<any>([]);
 let filesManager = new FilesManager(filesList);
 let history = new HistoryManager(filesManager);
 
+const videoExtensions = ['mp4', 'avi', 'mov', 'mkv'];
 let mediaBlobUrl = ref('');
 
 watchEffect(async () => {
@@ -65,9 +66,10 @@ watchEffect(async () => {
   }
 
   // Experimental feature
-  // if(['mp4', 'avi', 'mov', 'mkv'].includes(filesManager.getFile(selectedPath.value)?.extension?.toLowerCase())) {
-  //   mediaBlobUrl.value = await filesManager.getFileBlobUrl(selectedPath.value) as string;
-  // }  
+  if(videoExtensions.includes(filesManager.getFile(selectedPath.value)?.extension?.toLowerCase())) {
+    mediaBlobUrl.value = await filesManager.getFileBlobUrl(selectedPath.value) as string;
+    console.log(mediaBlobUrl.value)
+  }  
 })
 
 const dragContainer = document.querySelector(".select-area");
@@ -168,7 +170,7 @@ function stepUp(path: string) {
             </v-row>
           </v-list>
         </template>
-        <template v-if="!filesManager.getFile(selectedPath)?.isFolder && ['mp4'].includes(filesManager.getFile(selectedPath)?.extension)">
+        <template v-if="!filesManager.getFile(selectedPath)?.isFolder && videoExtensions.includes(filesManager.getFile(selectedPath)?.extension)">
           <MediaVideoPlayer :src="mediaBlobUrl"></MediaVideoPlayer>
         </template>
         <template v-if="!files.length">

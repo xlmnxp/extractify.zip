@@ -5,7 +5,7 @@ import SevenZip, { SevenZipModule } from "7z-wasm";
 // @ts-expect-error 7z-wasm have that file but typescript can't find it when query it with url
 import SevenZipWasm from "7z-wasm/7zz.wasm?url";
 import * as Comlink from "comlink";
-import mime from 'mime-types';
+import mime from 'mime';
 
 export interface iFile {
     name: string;
@@ -148,37 +148,20 @@ export class SevenZipManager {
         if (!this.sevenZip) return;
         file = typeof file === "string" ? JSON.parse(file) : file;
 
-        // override archive name as file name
-        file.path = '/' + this.archiveName;
-
         this.sevenZip.FS.chdir("/");
-        console.log("Directory content before extracting", this.sevenZip.FS.readdir("/"));
 
         // extract file from archive
         this.execute(['x', '-y', this.archiveName, file.path.substring(1)]);
 
-        console.log("Directory content after extracting", this.sevenZip.FS.readdir('/'));
+        const { node } = this.sevenZip.FS.lookupPath('/');
+        const buffer = node.contents[file.path.substring(1)].contents;
 
-        console.log({
-            file: file.path.substring(1),
-            p: file.path
-        });
+        const blob = new Blob([buffer as unknown as Uint8Array], { type: mime.getType(file.extension!) || "application/octet-stream" });
+        const blobUrl = URL.createObjectURL(blob);
 
-        const stream = this.sevenZip.FS.open(file.path, 'r');
-        const stat = this.sevenZip.FS.stat(file.path);
-        const bufferLength = stat.size;
-        const buffer = new Uint8Array(bufferLength);
-        this.sevenZip.FS.read(stream, buffer, 0, bufferLength, 0);
-        this.sevenZip.FS.close(stream);
+        // this.sevenZip.FS.unlink(file.path.substring(1));
 
-        console.log({buffer});
-
-        // const blob = new Blob([buffer], { type: mime.lookup(file.extension!) || "application/octet-stream" });
-        // const blobUrl = URL.createObjectURL(blob);
-
-        // console.log({blobUrl});
-
-        return "blobUrl";
+        return blobUrl;
     }
 }
 
