@@ -146,19 +146,18 @@ export class SevenZipManager {
         if (!this.sevenZip) return;
         file = typeof file === "string" ? JSON.parse(file) : file;
 
-        this.sevenZip.FS.chdir("/");
-
         // extract file from archive
         this.execute(['x', '-y', this.archiveName, file.path.substring(1)]);
+        this.sevenZip.FS.chmod(file.path, 0o777);
 
-        const { node } = this.sevenZip.FS.lookupPath('/');
-        const buffer = node.contents[file.path.substring(1)].contents;
+        // get file buffer
+        const buffer = this.sevenZip.FS.readFile(file.path);
 
-        const blob = new Blob([buffer as unknown as Uint8Array], { type: mime.getType(file.extension!) || "application/octet-stream" });
+        const blob = new Blob([buffer], { type: mime.getType(file.extension!) || "application/octet-stream" });
         const blobUrl = URL.createObjectURL(blob);
 
         // remove the file after extract local blob url
-        this.sevenZip.FS.unlink(file.path.substring(1));
+        this.sevenZip.FS.unlink(file.path);
 
         return blobUrl;
     }
