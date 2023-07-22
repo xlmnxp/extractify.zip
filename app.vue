@@ -4,7 +4,7 @@ import { VueSelecto } from "vue3-selecto";
 import { useDisplay } from 'vuetify/lib/framework.mjs';
 import { HistoryManager } from './composables/history-manager';
 import { FilesManager } from './composables/files-manager';
-import type { iFile } from "composables/worker/7zip-manager" 
+import type { iFile } from "composables/worker/7zip-manager"
 
 let display = useDisplay();
 let drawer = ref(!display.mdAndDown.value);
@@ -66,10 +66,10 @@ watchEffect(async () => {
   }
 
   // Experimental feature
-  if(videoExtensions.includes(filesManager.getFile(selectedPath.value)?.extension?.toLowerCase())) {
+  if (videoExtensions.includes(filesManager.getFile(selectedPath.value)?.extension?.toLowerCase())) {
     mediaBlobUrl.value = await filesManager.getFileBlobUrl(selectedPath.value) as string;
     console.log(mediaBlobUrl.value)
-  }  
+  }
 })
 
 const dragContainer = document.querySelector(".select-area");
@@ -117,6 +117,13 @@ function stepUp(path: string) {
         </template>
       </v-toolbar>
       <TreeView :filesList="filesList" :nav=true></TreeView>
+      <v-footer class="d-flex w-100 flex-column" style="position: absolute;bottom: 0;">
+        <div class="d-flex w-100 align-center">
+          <a href="https://github.com/xlmnxp/extractify.zip" target="_blank" class="text-subtitle-2" style="text-decoration: underline;text-decoration-style: dotted">Open Source Licenses</a>
+          <v-spacer></v-spacer>
+          <v-btn class="mx-4" icon="mdi-github" variant="plain" size="small" href="https://github.com/xlmnxp/extractify.zip" target="_blank"></v-btn>
+        </div>
+      </v-footer>
     </v-navigation-drawer>
     <v-main class="select-area" style="height: 100dvh;">
       <v-toolbar class="px-5" height="auto">
@@ -170,7 +177,8 @@ function stepUp(path: string) {
             </v-row>
           </v-list>
         </template>
-        <template v-if="!filesManager.getFile(selectedPath)?.isFolder && videoExtensions.includes(filesManager.getFile(selectedPath)?.extension)">
+        <template
+          v-if="!filesManager.getFile(selectedPath)?.isFolder && videoExtensions.includes(filesManager.getFile(selectedPath)?.extension)">
           <MediaVideoPlayer :src="mediaBlobUrl"></MediaVideoPlayer>
         </template>
         <template v-if="!files.length">
