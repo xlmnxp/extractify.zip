@@ -32,6 +32,6 @@
     "uuid": "^9.0.0",
     "vue-plyr": "^7.0.0",
     "vue3-selecto": "^1.8.4",
-    "vuetify": "^3.2.4"
+    "vuetify": "^3.4.4"
   }
 }
