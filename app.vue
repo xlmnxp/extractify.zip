@@ -38,7 +38,7 @@ function onDrop(e: any) {
   selectedPath.value = '/';
 }
 
-function preventDefaults(e: any) {
+function preventDefaults(e: Event) {
   e.preventDefault()
 }
 
