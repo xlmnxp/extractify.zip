@@ -6,6 +6,11 @@ import * as Comlink from "comlink";
 import SevenZipWorker from "./worker/7zip-manager?worker";
 import { SevenZipManager, iFile } from "./worker/7zip-manager";
 
+export const videoExtensions = ['mp4', 'avi', 'mov', 'mkv'];
+export const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+export const audioExtensions = ['mp3', 'wav', 'ogg', 'flac'];
+export const textExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'md', 'js', 'ts', 'php', 'c', 'cpp', 'py', 'html', 'css', 'scss', 'sass', 'less', 'json', 'xml', 'sql', 'java', 'go', 'rb', 'sh', 'bat', 'ps1', 'cmd', 'yml', 'yaml', 'ini', 'toml', 'csv', 'tsv', 'gitignore', 'lock', 'htaccess', 'htpasswd', 'env', 'dockerfile', 'gitattributes', 'gitmodules', 'editorconfig', 'babelrc', 'eslintrc', 'eslintignore', 'prettierrc', 'prettierignore', 'stylelintrc', 'stylelintignore', 'postcssrc', 'postcss.config', 'jsx', 'tsx', 'license']
+
 export class FilesManager {
     consoleOutputBuffer: string[] = [];
     path: Ref<string> = useSelectedPath();
@@ -67,5 +72,10 @@ export class FilesManager {
     async getFileBlobUrl(path: string) {
         if (!this.remoteSevenZipManager) return;
         return await this.remoteSevenZipManager.generateBlobUrl(JSON.stringify(this.getFile(path)) as any);
+    }
+
+    async getFileContent(path: string) {
+        if (!this.remoteSevenZipManager) return;
+        return await this.remoteSevenZipManager.getFileContent(JSON.stringify(this.getFile(path)) as any);
     }
 }

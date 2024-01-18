@@ -66,7 +66,7 @@ export class SevenZipManager {
                 name: file.groups!.path.lastIndexOf('/') > -1 ? file.groups!.path.substring(file.groups!.path.lastIndexOf('/') + 1) : file.groups!.path,
                 path: `/${file.groups!.path}`,
                 isFolder: isFolder ? true : false,
-                extension: isFolder ? "" : file.groups!.path.substring(file.groups!.path.lastIndexOf('.') + 1),
+                extension: isFolder ? "" : file.groups!.path.substring(file.groups!.path.lastIndexOf('.') + 1).toLowerCase(),
                 content: isFolder ? [] as any[] : undefined,
             }
         });
@@ -160,6 +160,23 @@ export class SevenZipManager {
         this.sevenZip.FS.unlink(file.path);
 
         return blobUrl;
+    }
+
+    // get content from buffer (Experimental)
+    async getFileContent(file: iFile) {
+        if (!this.sevenZip) return;
+        file = typeof file === "string" ? JSON.parse(file) : file;
+
+        // extract file from archive
+        this.execute(['x', '-y', this.archiveName, file.path.substring(1)]);
+        this.sevenZip.FS.chmod(file.path, 0o777);
+
+        // get file buffer
+        const buffer = this.sevenZip.FS.readFile(file.path, { encoding: "utf8" });
+        // remove the file after extract local blob url
+        this.sevenZip.FS.unlink(file.path);
+
+        return buffer;
     }
 }
 

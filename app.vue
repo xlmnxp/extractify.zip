@@ -17,8 +17,6 @@ let filesGridList = ref<any>([])
 let selectedList = ref<any>([]);
 let filesManager = new FilesManager(filesList);
 let history = new HistoryManager(filesManager);
-
-const videoExtensions = ['mp4', 'avi', 'mov', 'mkv'];
 let mediaBlobUrl = ref('');
 
 watchEffect(async () => {
@@ -27,7 +25,6 @@ watchEffect(async () => {
     filesList.value = [];
 
     await filesManager.loadArchive(files.value?.[0]);
-
     loadingModel.value = false;
   }
 })
@@ -68,7 +65,6 @@ watchEffect(async () => {
   // Experimental feature
   if (videoExtensions.includes(filesManager.getFile(selectedPath.value)?.extension?.toLowerCase())) {
     mediaBlobUrl.value = await filesManager.getFileBlobUrl(selectedPath.value) as string;
-    console.log(mediaBlobUrl.value)
   }
 })
 
@@ -162,15 +158,13 @@ function stepUp(path: string) {
         </v-row>
       </v-toolbar>
       <v-container>
-        <template v-if="filesManager.getFile(selectedPath)?.isFolder || false">
+        <template v-if="filesManager.getFile(selectedPath)?.isFolder">
           <v-list :selected="[selectedPath]">
             <v-row no-gutters>
               <v-col cols="6" lg="2" md="3" sm="6" v-for="file of filesGridList" style="text-align: center;">
                 <v-list-item class="ma-2 pa-5 selectable" active-color="light-blue-darken-4" :value="file.path" rounded
                   @click="selectedPath = file.path">
-                  <v-avatar class="mb-2" :color="file.isFolder ? 'light-blue-accent-4' : 'blue-grey-darken-1'">
-                    <v-icon color="white">{{ file.isFolder ? 'mdi-folder' : 'mdi-file' }}</v-icon>
-                  </v-avatar>
+                  <file-logo class="mb-2" :file="file" :key="file.path" />
                   <p>{{ file.name }}</p>
                 </v-list-item>
               </v-col>
@@ -180,6 +174,10 @@ function stepUp(path: string) {
         <template
           v-if="!filesManager.getFile(selectedPath)?.isFolder && videoExtensions.includes(filesManager.getFile(selectedPath)?.extension)">
           <MediaVideoPlayer :src="mediaBlobUrl"></MediaVideoPlayer>
+        </template>
+        <template
+          v-if="!filesManager.getFile(selectedPath)?.isFolder && files.length && !videoExtensions.includes(filesManager.getFile(selectedPath)?.extension)">
+          <TextEditor :file="filesManager.getFile(selectedPath)" :filesManager="filesManager"></TextEditor>
         </template>
         <template v-if="!files.length">
           <!-- tutorial drag and drop zipped file here and review it securely -->
