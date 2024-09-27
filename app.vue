@@ -115,9 +115,11 @@ function stepUp(path: string) {
       <TreeView :filesList="filesList" :nav=true></TreeView>
       <v-footer class="d-flex w-100 flex-column" style="position: absolute;bottom: 0;">
         <div class="d-flex w-100 align-center">
-          <a href="https://github.com/xlmnxp/extractify.zip" target="_blank" class="text-subtitle-2" style="text-decoration: underline;text-decoration-style: dotted">Open Source Licenses</a>
+          <a href="https://github.com/xlmnxp/extractify.zip" target="_blank" class="text-subtitle-2"
+            style="text-decoration: underline;text-decoration-style: dotted">Open Source Licenses</a>
           <v-spacer></v-spacer>
-          <v-btn class="mx-4" icon="mdi-github" variant="plain" size="small" href="https://github.com/xlmnxp/extractify.zip" target="_blank"></v-btn>
+          <v-btn class="mx-4" icon="mdi-github" variant="plain" size="small"
+            href="https://github.com/xlmnxp/extractify.zip" target="_blank"></v-btn>
         </div>
       </v-footer>
     </v-navigation-drawer>
@@ -162,8 +164,23 @@ function stepUp(path: string) {
           <v-list :selected="[selectedPath]">
             <v-row no-gutters>
               <v-col cols="6" lg="2" md="3" sm="6" v-for="file of filesGridList" style="text-align: center;">
-                <v-list-item class="ma-2 pa-5 selectable" active-color="light-blue-darken-4" :value="file.path" rounded
-                  @click="selectedPath = file.path">
+                <v-list-item class="position-relative ma-2 pa-5 selectable" active-color="light-blue-darken-4"
+                  :value="file.path" rounded @click="selectedPath = file.path">
+                  <v-menu v-if="!file.isFolder">
+                    <template v-slot:activator="{ props }">
+                      <v-btn class="position-absolute" style="right: 0; top: 0;" icon="mdi-dots-vertical" variant="text"
+                        v-bind="props"></v-btn>
+                    </template>
+                    <v-list>
+                      <v-list-item title="Download" aria-label="Download" icon="mdi-download"
+                        @click="filesManager.downloadFile(file.path)">
+                        <template v-slot:prepend>
+                          <v-icon icon="mdi-download"></v-icon>
+                        </template>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+
                   <file-logo class="mb-2" :file="file" :key="file.path" />
                   <p>{{ file.name }}</p>
                 </v-list-item>
@@ -190,7 +207,8 @@ function stepUp(path: string) {
                 <v-card-text class="font-weight-bold">
                   Extract and Explore compressed files online and securely.
                   <p class="text-subtitle-2 font-weight-regular text-medium-emphasis">
-                    <v-icon class="mx-auto" size="1em" color="#007B4F">mdi-shield</v-icon> <strong>nothing</strong> leave
+                    <v-icon class="mx-auto" size="1em" color="#007B4F">mdi-shield</v-icon> <strong>nothing</strong>
+                    leave
                     your browser
                   </p>
                 </v-card-text>

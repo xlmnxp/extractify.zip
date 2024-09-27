@@ -5,6 +5,7 @@ import * as Comlink from "comlink";
 // @ts-expect-error typescript can't find it when query it with ?worker
 import SevenZipWorker from "./worker/7zip-manager?worker";
 import { SevenZipManager, iFile } from "./worker/7zip-manager";
+import mime from 'mime';
 
 export const videoExtensions = ['mp4', 'avi', 'mov', 'mkv'];
 export const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
@@ -74,8 +75,25 @@ export class FilesManager {
         return await this.remoteSevenZipManager.generateBlobUrl(JSON.stringify(this.getFile(path)) as any);
     }
 
-    async getFileContent(path: string) {
+    async getFileContent(path: string, encoding: "utf8" | "binary" = "utf8") {
         if (!this.remoteSevenZipManager) return;
-        return await this.remoteSevenZipManager.getFileContent(JSON.stringify(this.getFile(path)) as any);
+        return await this.remoteSevenZipManager.getFileContent(JSON.stringify(this.getFile(path)) as any, encoding);
+    }
+
+    async downloadFile(path: string) {
+        if (!this.remoteSevenZipManager) return;
+
+        const file = this.getFile(path);
+        const fileContent = await this.getFileContent(path, "binary");
+        if (!file) return;
+
+        const blob = new Blob([fileContent as any], { type: mime.getType(file.extension!) || "application/octet-stream" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = file.name;
+        a.click();
+        
     }
 }

@@ -163,7 +163,7 @@ export class SevenZipManager {
     }
 
     // get content from buffer (Experimental)
-    async getFileContent(file: iFile) {
+    async getFileContent(file: iFile, encoding: "utf8" | "binary" = "utf8") {
         if (!this.sevenZip) return;
         file = typeof file === "string" ? JSON.parse(file) : file;
 
@@ -172,7 +172,7 @@ export class SevenZipManager {
         this.sevenZip.FS.chmod(file.path, 0o777);
 
         // get file buffer
-        const buffer = this.sevenZip.FS.readFile(file.path, { encoding: "utf8" });
+        const buffer = this.sevenZip.FS.readFile(file.path, { encoding: encoding as any });
         // remove the file after extract local blob url
         this.sevenZip.FS.unlink(file.path);
 
