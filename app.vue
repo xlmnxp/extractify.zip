@@ -147,15 +147,15 @@ function stepUp(path: string) {
         </template>
         <template
           v-if="!filesManager.getFile(selectedPath)?.isFolder && imageExtensions.includes(filesManager.getFile(selectedPath)?.extension)">
-          <ImageViewer :src="mediaBlobUrl"></ImageViewer>
+          <MediaImageViewer :src="mediaBlobUrl"></MediaImageViewer>
         </template>
         <template
           v-if="!filesManager.getFile(selectedPath)?.isFolder && files.length && !imageExtensions.includes(filesManager.getFile(selectedPath)?.extension) && !videoExtensions.includes(filesManager.getFile(selectedPath)?.extension) && !binaryExtensions.includes(filesManager.getFile(selectedPath)?.extension)">
-          <TextEditor :file="filesManager.getFile(selectedPath)" :filesManager="filesManager"></TextEditor>
+          <MediaTextEditor :file="filesManager.getFile(selectedPath)" :filesManager="filesManager"></MediaTextEditor>
         </template>
         <template
           v-if="!filesManager.getFile(selectedPath)?.isFolder && files.length && binaryExtensions.includes(filesManager.getFile(selectedPath)?.extension)">
-          <BinaryViewer :file="filesManager.getFile(selectedPath)" :filesManager="filesManager"></BinaryViewer>
+          <MediaBinaryViewer :file="filesManager.getFile(selectedPath)" :filesManager="filesManager"></MediaBinaryViewer>
         </template>
         <template v-if="!files.length">
           <!-- tutorial drag and drop zipped file here and review it securely -->

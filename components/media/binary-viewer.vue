@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { FilesManager } from '~/composables/files-manager';
 import { iFile } from '~/composables/worker/7zip-manager';
+import { VBtn } from 'vuetify/components';
 
 interface Props {
   file: iFile,
@@ -54,6 +55,10 @@ function updateVisibleRows() {
   }
 }
 
+function downloadBinaryFile() {
+  filesManager.downloadFile(file.path);
+}
+
 onMounted(async () => {
   try {
     buffer.value = await filesManager.getFileContent(file.path, "binary") as Uint8Array
@@ -67,6 +72,17 @@ onMounted(async () => {
 
 <template>
   <div class="binary-viewer">
+    <div class="toolbar">
+      <v-btn
+        color="primary"
+        variant="flat"
+        prepend-icon="mdi-download"
+        @click="downloadBinaryFile"
+        size="small"
+      >
+        Download {{ file.name }}
+      </v-btn>
+    </div>
     <div v-if="isLoading" class="loading">
       Loading...
     </div>
@@ -140,5 +156,11 @@ onMounted(async () => {
   justify-content: center;
   align-items: center;
   height: 100%;
+}
+
+.toolbar {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: flex-end;
 }
 </style>
