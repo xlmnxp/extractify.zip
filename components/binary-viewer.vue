@@ -19,7 +19,7 @@ const scrollTop = ref(0)
 // Calculate total rows and visible window
 const totalRows = computed(() => buffer.value ? Math.ceil(buffer.value.length / 16) : 0)
 const startRow = computed(() => Math.floor(scrollTop.value / rowHeight))
-const endRow = computed(() => Math.min(startRow.value + visibleRows.value + 5, totalRows.value))
+const endRow = computed(() => Math.min(startRow.value + visibleRows.value + 50, totalRows.value))
 
 // Get only the visible rows data
 const visibleData = computed(() => {
