@@ -5,6 +5,7 @@ import { useDisplay } from 'vuetify/lib/framework.mjs';
 import { HistoryManager } from './composables/history-manager';
 import { FilesManager } from './composables/files-manager';
 import type { iFile } from "composables/worker/7zip-manager"
+import { videoExtensions, binaryExtensions } from '#imports';
 
 let display = useDisplay();
 let drawer = ref(!display.mdAndDown.value);
@@ -56,6 +57,8 @@ onUnmounted(() => {
 watchEffect(async () => {
   const file = filesManager.getFile(selectedPath.value);
   filesGridList.value = file?.content;
+
+  console.log("Selected file", file);
 
   selectedList.value = [];
   for (const selectedElement of document.querySelectorAll(".selectable.selected")) {
@@ -193,8 +196,12 @@ function stepUp(path: string) {
           <MediaVideoPlayer :src="mediaBlobUrl"></MediaVideoPlayer>
         </template>
         <template
-          v-if="!filesManager.getFile(selectedPath)?.isFolder && files.length && !videoExtensions.includes(filesManager.getFile(selectedPath)?.extension)">
+          v-if="!filesManager.getFile(selectedPath)?.isFolder && files.length && !videoExtensions.includes(filesManager.getFile(selectedPath)?.extension) && !binaryExtensions.includes(filesManager.getFile(selectedPath)?.extension)">
           <TextEditor :file="filesManager.getFile(selectedPath)" :filesManager="filesManager"></TextEditor>
+        </template>
+        <template
+          v-if="!filesManager.getFile(selectedPath)?.isFolder && files.length && binaryExtensions.includes(filesManager.getFile(selectedPath)?.extension)">
+          <BinaryViewer :file="filesManager.getFile(selectedPath)" :filesManager="filesManager"></BinaryViewer>
         </template>
         <template v-if="!files.length">
           <!-- tutorial drag and drop zipped file here and review it securely -->
