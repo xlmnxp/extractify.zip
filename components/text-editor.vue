@@ -35,6 +35,6 @@ onMounted(async () => {
 <style scoped>
 #editor {
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 120px);
 }
 </style>

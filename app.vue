@@ -3,7 +3,7 @@ import { getElementInfo } from "moveable";
 import { VueSelecto } from "vue3-selecto";
 import { useDisplay } from 'vuetify/lib/framework.mjs';
 import { HistoryManager } from './composables/history-manager';
-import { FilesManager } from './composables/files-manager';
+import { FilesManager, supportedExtensions } from './composables/files-manager';
 import type { iFile } from "composables/worker/7zip-manager"
 import { videoExtensions, binaryExtensions } from '#imports';
 
@@ -19,13 +19,21 @@ let selectedList = ref<any>([]);
 let filesManager = new FilesManager(filesList);
 let history = new HistoryManager(filesManager);
 let mediaBlobUrl = ref('');
+let errorDialog = ref(false);
+let errorMessage = ref('');
 
 watchEffect(async () => {
   if (files.value?.[0]) {
     loadingModel.value = true;
     filesList.value = [];
 
-    await filesManager.loadArchive(files.value?.[0]);
+    try {
+      await filesManager.loadArchive(files.value?.[0]);
+    } catch (error: any) {
+      errorMessage.value = error.message;
+      errorDialog.value = true;
+      files.value = [];
+    }
     loadingModel.value = false;
   }
 })
@@ -164,7 +172,7 @@ function stepUp(path: string) {
       </v-toolbar>
       <v-container>
         <template v-if="filesManager.getFile(selectedPath)?.isFolder">
-          <v-list :selected="[selectedPath]">
+          <v-list :selected="[selectedPath]" style="height: calc(100vh - 120px);">
             <v-row no-gutters>
               <v-col cols="6" lg="2" md="3" sm="6" v-for="file of filesGridList" style="text-align: center;">
                 <v-list-item class="position-relative ma-2 pa-5 selectable" active-color="light-blue-darken-4"
@@ -205,7 +213,7 @@ function stepUp(path: string) {
         </template>
         <template v-if="!files.length">
           <!-- tutorial drag and drop zipped file here and review it securely -->
-          <v-row align="center" justify="center">
+          <v-row align="center" justify="center" style="height: calc(100vh - 120px)">
             <v-col cols="12">
               <v-card variant="flat" class="mx-auto" max-width="768">
                 <!-- v-icon for file -->
@@ -221,7 +229,7 @@ function stepUp(path: string) {
                 </v-card-text>
 
                 <!-- file input -->
-                <v-file-input class="mx-5" v-model="files" accept=".zip,.7z,.rar,.tar.bz2,.tar.gz,.tar.xz"
+                <v-file-input class="mx-5" v-model="files" :accept="supportedExtensions.map(extension => `.${extension}`).join(',')"
                   label="or select a file..." variant="outlined"></v-file-input>
               </v-card>
             </v-col>
@@ -241,6 +249,22 @@ function stepUp(path: string) {
         </v-card-text>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="errorDialog" width="auto">
+      <v-card>
+        <v-card-title class="text-error">
+          Error
+        </v-card-title>
+        <v-card-text>
+          {{ errorMessage }}
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" variant="text" @click="errorDialog = false">
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-layout>
 </template>
 <style>
@@ -250,5 +274,10 @@ function stepUp(path: string) {
 
 .selected {
   background: rgba(48, 150, 243, 0.1);
+}
+
+.v-container {
+  height: calc(100vh - 120px);
+  padding: 0;
 }
 </style>

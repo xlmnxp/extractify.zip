@@ -12,6 +12,12 @@ export const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 export const audioExtensions = ['mp3', 'wav', 'ogg', 'flac'];
 export const textExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'md', 'js', 'ts', 'php', 'c', 'cpp', 'py', 'html', 'css', 'scss', 'sass', 'less', 'json', 'xml', 'sql', 'java', 'go', 'rb', 'sh', 'bat', 'ps1', 'cmd', 'yml', 'yaml', 'ini', 'toml', 'csv', 'tsv', 'gitignore', 'lock', 'htaccess', 'htpasswd', 'env', 'dockerfile', 'gitattributes', 'gitmodules', 'editorconfig', 'babelrc', 'eslintrc', 'eslintignore', 'prettierrc', 'prettierignore', 'stylelintrc', 'stylelintignore', 'postcssrc', 'postcss.config', 'jsx', 'tsx', 'license'];
 export const binaryExtensions = ['exe', 'dll', 'so', 'dylib', 'bin', 'dat', 'db', 'sqlite', 'o', 'class', 'pyc'];
+export const supportedExtensions = [
+    '7z', 'xz', 'bz2', 'gz', 'tar', 'zip', 'wim',
+    'apfs', 'ar', 'arj', 'cab', 'chm', 'cpio', 'dmg', 'ext', 'fat', 'gpt', 'hfs',
+    'ihex', 'iso', 'lzh', 'lzma', 'mbr', 'msi', 'nsis', 'ntfs', 'qcow2', 'rar',
+    'rpm', 'squashfs', 'udf', 'uefi', 'vdi', 'vhd', 'vhdx', 'vmdk', 'xar', 'z'
+];
 
 export class FilesManager {
     consoleOutputBuffer: string[] = [];
@@ -28,6 +34,12 @@ export class FilesManager {
 
     async loadArchive(file: File) {
         if (!this.remoteSevenZipManager) return;
+        
+        const extension = file.name.split('.').pop()?.toLowerCase();
+        if (!extension || !supportedExtensions.includes(extension)) {
+            throw new Error('Unsupported file format. Please use a supported archive format.');
+        }
+
         this.filesList.value = await this.remoteSevenZipManager.loadArchive(file) || [];
     }
 
