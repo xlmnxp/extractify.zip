@@ -3,7 +3,7 @@ import { getElementInfo } from "moveable";
 import { VueSelecto } from "vue3-selecto";
 import { useDisplay } from 'vuetify/lib/framework.mjs';
 import { HistoryManager } from './composables/history-manager';
-import { FilesManager, supportedExtensions } from './composables/files-manager';
+import { FilesManager, supportedExtensions, imageExtensions } from './composables/files-manager';
 import type { iFile } from "composables/worker/7zip-manager"
 import { videoExtensions, binaryExtensions } from '#imports';
 
@@ -73,8 +73,9 @@ watchEffect(async () => {
     selectedElement.classList.remove("selected");
   }
 
-  // Experimental feature
-  if (videoExtensions.includes(filesManager.getFile(selectedPath.value)?.extension?.toLowerCase())) {
+  // Update to handle both video and image files
+  if (videoExtensions.includes(filesManager.getFile(selectedPath.value)?.extension?.toLowerCase()) ||
+      imageExtensions.includes(filesManager.getFile(selectedPath.value)?.extension?.toLowerCase())) {
     mediaBlobUrl.value = await filesManager.getFileBlobUrl(selectedPath.value) as string;
   }
 })
@@ -204,7 +205,11 @@ function stepUp(path: string) {
           <MediaVideoPlayer :src="mediaBlobUrl"></MediaVideoPlayer>
         </template>
         <template
-          v-if="!filesManager.getFile(selectedPath)?.isFolder && files.length && !videoExtensions.includes(filesManager.getFile(selectedPath)?.extension) && !binaryExtensions.includes(filesManager.getFile(selectedPath)?.extension)">
+          v-if="!filesManager.getFile(selectedPath)?.isFolder && imageExtensions.includes(filesManager.getFile(selectedPath)?.extension)">
+          <ImageViewer :src="mediaBlobUrl"></ImageViewer>
+        </template>
+        <template
+          v-if="!filesManager.getFile(selectedPath)?.isFolder && files.length && !imageExtensions.includes(filesManager.getFile(selectedPath)?.extension) && !videoExtensions.includes(filesManager.getFile(selectedPath)?.extension) && !binaryExtensions.includes(filesManager.getFile(selectedPath)?.extension)">
           <TextEditor :file="filesManager.getFile(selectedPath)" :filesManager="filesManager"></TextEditor>
         </template>
         <template
