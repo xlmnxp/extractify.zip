@@ -119,7 +119,7 @@ onMounted(async () => {
   white-space: pre;
   padding: 1rem;
   background-color: var(--v-theme-surface);
-  height: calc(100vh - 120px);
+  height: calc(100vh - 148px);
 }
 
 .hex-container {
