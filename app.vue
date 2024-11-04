@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { getElementInfo } from "moveable";
-import { VueSelecto } from "vue3-selecto";
 import { useDisplay } from 'vuetify/lib/framework.mjs';
 import { HistoryManager } from './composables/history-manager';
 import { FilesManager, supportedExtensions, imageExtensions } from './composables/files-manager';
@@ -66,43 +64,12 @@ watchEffect(async () => {
   const file = filesManager.getFile(selectedPath.value);
   filesGridList.value = file?.content;
 
-  console.log("Selected file", file);
-
-  selectedList.value = [];
-  for (const selectedElement of document.querySelectorAll(".selectable.selected")) {
-    selectedElement.classList.remove("selected");
-  }
-
   // Update to handle both video and image files
   if (videoExtensions.includes(filesManager.getFile(selectedPath.value)?.extension?.toLowerCase()) ||
-      imageExtensions.includes(filesManager.getFile(selectedPath.value)?.extension?.toLowerCase())) {
+    imageExtensions.includes(filesManager.getFile(selectedPath.value)?.extension?.toLowerCase())) {
     mediaBlobUrl.value = await filesManager.getFileBlobUrl(selectedPath.value) as string;
   }
 })
-
-const dragContainer = document.querySelector(".select-area");
-
-function onSelectStart(e: any) {
-  e.added.forEach((el: any) => {
-    el.classList.add("selected");
-    selectedList.value = [...selectedList.value, el?.__vnode?.ctx?.props?.value];
-  });
-  e.removed.forEach((el: any) => {
-    el.classList.remove("selected");
-    selectedList.value = selectedList.value.filter((value: string) => value != el?.__vnode?.ctx?.props?.value)
-  });
-}
-
-function onSelectEnd(e: any) {
-  e.afterAdded.forEach((el: any) => {
-    el.classList.add("selected");
-    selectedList.value = [...selectedList.value, el?.__vnode?.ctx?.props?.value];
-  });
-  e.afterRemoved.forEach((el: any) => {
-    el.classList.remove("selected");
-    selectedList.value = selectedList.value.filter((value: string) => value != el?.__vnode?.ctx?.props?.value)
-  });
-}
 
 // step up from current path
 function stepUp(path: string) {
@@ -135,9 +102,8 @@ function stepUp(path: string) {
         </div>
       </v-footer>
     </v-navigation-drawer>
-    <v-main class="select-area" style="height: 100dvh;">
+    <v-main style="height: 100dvh;">
       <v-toolbar class="px-5" height="auto">
-
         <v-row align="center" justify="center">
           <v-col cols="12" lg="2" md="12" style="display: inline-flex;">
             <v-btn title="Back" aria-label="Back" icon="mdi-arrow-left" :disabled="!history.hasUndo.value"
@@ -173,32 +139,7 @@ function stepUp(path: string) {
       </v-toolbar>
       <v-container>
         <template v-if="filesManager.getFile(selectedPath)?.isFolder">
-          <v-list :selected="[selectedPath]" style="height: calc(100vh - 120px);">
-            <v-row no-gutters>
-              <v-col cols="6" lg="2" md="3" sm="6" v-for="file of filesGridList" style="text-align: center;">
-                <v-list-item class="position-relative ma-2 pa-5 selectable" active-color="light-blue-darken-4"
-                  :value="file.path" rounded @click="selectedPath = file.path">
-                  <v-menu v-if="!file.isFolder">
-                    <template v-slot:activator="{ props }">
-                      <v-btn class="position-absolute" style="right: 0; top: 0;" icon="mdi-dots-vertical" variant="text"
-                        v-bind="props"></v-btn>
-                    </template>
-                    <v-list>
-                      <v-list-item title="Download" aria-label="Download" icon="mdi-download"
-                        @click="filesManager.downloadFile(file.path)">
-                        <template v-slot:prepend>
-                          <v-icon icon="mdi-download"></v-icon>
-                        </template>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-
-                  <file-logo class="mb-2" :file="file" :key="file.path" />
-                  <p>{{ file.name }}</p>
-                </v-list-item>
-              </v-col>
-            </v-row>
-          </v-list>
+          <FolderViewer :filesManager="filesManager" :filesGridList="filesGridList" :selectedList="selectedList"></FolderViewer>
         </template>
         <template
           v-if="!filesManager.getFile(selectedPath)?.isFolder && videoExtensions.includes(filesManager.getFile(selectedPath)?.extension)">
@@ -234,17 +175,14 @@ function stepUp(path: string) {
                 </v-card-text>
 
                 <!-- file input -->
-                <v-file-input class="mx-5" v-model="files" :accept="supportedExtensions.map(extension => `.${extension}`).join(',')"
-                  label="or select a file..." variant="outlined"></v-file-input>
+                <v-file-input class="mx-5" v-model="files"
+                  :accept="supportedExtensions.map(extension => `.${extension}`).join(',')" label="or select a file..."
+                  variant="outlined"></v-file-input>
               </v-card>
             </v-col>
           </v-row>
         </template>
       </v-container>
-
-      <VueSelecto :selectableTargets="['.selectable']" :dragContainer="dragContainer" :hitRate="0"
-        :selectFromInside="false" :toggleContinueSelect="'ctrl'" @select="onSelectStart" @selectStart="onSelectStart"
-        :get-element-rect="getElementInfo" @selectEnd="onSelectEnd" :select-by-click="false" />
     </v-main>
     <v-dialog v-model="loadingModel" persistent width="auto">
       <v-card>

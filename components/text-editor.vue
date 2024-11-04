@@ -2,7 +2,6 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { ref, onMounted } from 'vue'
 import { FilesManager } from '~/composables/files-manager';
-// @ts-ignore
 import { iFile } from '~/composables/worker/7zip-manager';
 
 interface Props {
@@ -18,6 +17,7 @@ let { file, filesManager } = defineProps<Props>()
 onMounted(async () => {
   const darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
 
+  if(!file) return;
   let fileContent = await filesManager.getFileContent(file.path);
   monaco.editor.create(editor.value, {
     value: fileContent?.toString()!,

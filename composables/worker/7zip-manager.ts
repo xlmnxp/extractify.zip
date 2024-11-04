@@ -166,9 +166,10 @@ export class SevenZipManager {
     async getFileContent(file: iFile, encoding: "utf8" | "binary" = "utf8") {
         if (!this.sevenZip) return;
         file = typeof file === "string" ? JSON.parse(file) : file;
+        if (!file) return;
 
         // extract file from archive
-        this.execute(['x', '-y', this.archiveName, file.path.substring(1)]);
+        this.execute(['x', '-y', this.archiveName, file?.path.substring(1)]);
         this.sevenZip.FS.chmod(file.path, 0o777);
 
         // get file buffer
