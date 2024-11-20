@@ -16,7 +16,7 @@ export const supportedExtensions = [
     '7z', 'xz', 'bz2', 'gz', 'tar', 'zip', 'wim',
     'apfs', 'ar', 'arj', 'cab', 'chm', 'cpio', 'dmg', 'ext', 'fat', 'gpt', 'hfs',
     'ihex', 'iso', 'lzh', 'lzma', 'mbr', 'msi', 'nsis', 'ntfs', 'qcow2', 'rar',
-    'rpm', 'squashfs', 'udf', 'uefi', 'vdi', 'vhd', 'vhdx', 'vmdk', 'xar', 'z'
+    'rpm', 'squashfs', 'udf', 'uefi', 'vdi', 'vhd', 'vhdx', 'vmdk', 'xar', 'z', 'jar'
 ];
 
 export class FilesManager {
