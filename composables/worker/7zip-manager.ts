@@ -20,6 +20,7 @@ export class SevenZipManager {
     sevenZip?: SevenZipModule;
     consoleOutputBuffer: string[] = [];
     archiveName: string = "";
+    originalName: string = "";
 
     constructor() {
         this.init();
@@ -47,13 +48,20 @@ export class SevenZipManager {
     async loadArchive(file: File) {
         if (!this.sevenZip) return;
 
-        this.archiveName = file.name;
+        this.originalName = file.name;
+        this.archiveName = file.name.toLocaleLowerCase();
 
         const stream = this.sevenZip.FS.open(this.archiveName, "w+");
         let archiveData = new Uint8Array(await file.arrayBuffer());
 
         this.sevenZip.FS.write(stream, archiveData, 0, archiveData.byteLength);
         this.sevenZip.FS.close(stream);
+
+        // workaround to support tar.gz formats
+        if (this.archiveName.endsWith(".tar.gz")) {
+            this.execute(["x", "-y", this.archiveName, `-o${this.archiveName.replace(".tar.gz", ".tar")}`]);
+            this.archiveName = this.archiveName.replace(".tar.gz", ".tar");
+        }
 
         // 7zip get files list
         let filesString = this.execute(["l", "-ba", this.archiveName]);
