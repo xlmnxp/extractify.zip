@@ -5,6 +5,7 @@ import SevenZip, { SevenZipModule } from "7z-wasm";
 // @ts-expect-error 7z-wasm have that file but typescript can't find it when query it with url
 import SevenZipWasm from "7z-wasm/7zz.wasm?url";
 import * as Comlink from "comlink";
+import { v4 as randomUUID } from "uuid";
 import mime from 'mime';
 
 export interface iFile {
@@ -49,7 +50,7 @@ export class SevenZipManager {
         if (!this.sevenZip) return;
 
         this.originalName = file.name;
-        this.archiveName = file.name.toLocaleLowerCase();
+        this.archiveName = file.name;
 
         const stream = this.sevenZip.FS.open(this.archiveName, "w+");
         let archiveData = new Uint8Array(await file.arrayBuffer());
@@ -57,10 +58,10 @@ export class SevenZipManager {
         this.sevenZip.FS.write(stream, archiveData, 0, archiveData.byteLength);
         this.sevenZip.FS.close(stream);
 
-        // workaround to support tar.gz formats
-        if (this.archiveName.endsWith(".tar.gz")) {
-            this.execute(["x", "-y", this.archiveName, `-o${this.archiveName.replace(".tar.gz", ".tar")}`]);
-            this.archiveName = this.archiveName.replace(".tar.gz", ".tar");
+        // workaround to support tar.gz and tar.xz formats
+        if ([".tar.gz", ".tgz", ".tar.xz"].some(ext => this.archiveName.endsWith(ext))) {
+            this.archiveName = randomUUID();
+            this.execute(["x", "-y", this.originalName, `-o${this.archiveName}`]);
         }
 
         // 7zip get files list
