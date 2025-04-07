@@ -137,7 +137,7 @@ function stepUp(path: string) {
           </v-col>
         </v-row>
       </v-toolbar>
-      <v-container>
+      <v-container style="max-width: 100%">
         <template v-if="filesManager.getFile(selectedPath)?.isFolder">
           <FolderViewer :filesManager="filesManager" :filesGridList="filesGridList" :selectedList="selectedList"></FolderViewer>
         </template>
