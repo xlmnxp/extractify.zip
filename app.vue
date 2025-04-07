@@ -95,7 +95,7 @@ function stepUp(path: string) {
       <v-footer class="d-flex w-100 flex-column" style="position: absolute;bottom: 0;">
         <div class="d-flex w-100 align-center">
           <a href="https://github.com/xlmnxp/extractify.zip" target="_blank" class="text-subtitle-2"
-            style="text-decoration: underline;text-decoration-style: dotted">Open Source Licenses</a>
+            style="text-decoration: underline;text-decoration-style: dotted">Source Code</a>
           <v-spacer></v-spacer>
           <v-btn class="mx-4" icon="mdi-github" variant="plain" size="small"
             href="https://github.com/xlmnxp/extractify.zip" target="_blank"></v-btn>
