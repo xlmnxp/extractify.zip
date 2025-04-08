@@ -2,14 +2,15 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { ref, onMounted } from 'vue'
 import { FilesManager } from '~/composables/files-manager';
-import { iFile } from '~/composables/worker/7zip-manager';
+import type { iFile } from '~/composables/worker/7zip-manager';
 
 interface Props {
   file: iFile,
   filesManager: FilesManager
 }
 
-const editor = ref()
+const editorPlaceholder = ref()
+let monacoEditor: monaco.editor.IStandaloneCodeEditor | null = null;
 
 let { file, filesManager } = defineProps<Props>()
 
@@ -17,19 +18,26 @@ let { file, filesManager } = defineProps<Props>()
 onMounted(async () => {
   const darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
 
-  if(!file) return;
+  if(!file || file.isFolder) return;
   let fileContent = await filesManager.getFileContent(file.path);
-  monaco.editor.create(editor.value, {
+
+  monacoEditor = monaco.editor.create(editorPlaceholder.value, {
     value: fileContent?.toString()!,
-    language: file.extension,
     readOnly: true,
     theme: darkMode ? 'vs-dark' : 'vs-light'
   })
 })
+
+watchEffect(async () => {
+  if(!file || file.isFolder) return;
+  let fileContent = await filesManager.getFileContent(file.path);
+
+  monacoEditor?.setValue(fileContent?.toString()!);
+})
 </script>
 
 <template>
-  <div id="editor" ref="editor"></div>
+  <div id="editor" ref="editorPlaceholder"></div>
 </template>
 
 <style scoped>
