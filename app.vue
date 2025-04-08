@@ -161,7 +161,7 @@ function stepUp(path: string) {
           <!-- tutorial drag and drop zipped file here and review it securely -->
           <v-row align="center" justify="center" style="height: calc(100vh - 120px)">
             <v-col cols="12">
-              <v-card variant="flat" class="mx-auto" max-width="768">
+              <v-card variant="flat" class="mx-auto" max-width="768" style="background: unset;">
                 <!-- v-icon for file -->
                 <v-icon class="mx-auto" size="100">mdi-file</v-icon>
                 <v-card-title>Drag and Drop Compressed Files</v-card-title>
