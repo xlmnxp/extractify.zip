@@ -2,9 +2,8 @@
 // and extract files from archive
 
 import * as Comlink from "comlink";
-// @ts-expect-error typescript can't find it when query it with ?worker
 import SevenZipWorker from "./worker/7zip-manager?worker";
-import { SevenZipManager, iFile } from "./worker/7zip-manager";
+import { SevenZipManager, type iFile } from "./worker/7zip-manager";
 import mime from 'mime';
 
 export const videoExtensions = ['mp4', 'avi', 'mov', 'mkv'];

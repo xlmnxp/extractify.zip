@@ -2,7 +2,7 @@
 import { useDisplay } from 'vuetify/lib/framework.mjs';
 import { HistoryManager } from './composables/history-manager';
 import { FilesManager, supportedExtensions, imageExtensions } from './composables/files-manager';
-import type { iFile } from "composables/worker/7zip-manager"
+import type { iFile } from "./composables/worker/7zip-manager"
 import { videoExtensions, binaryExtensions } from '#imports';
 
 let display = useDisplay();
@@ -175,7 +175,7 @@ function stepUp(path: string) {
                 </v-card-text>
 
                 <!-- file input -->
-                <v-file-input class="mx-5" v-model="files"
+                <v-file-input class="mx-5" v-model="files[0]"
                   :accept="supportedExtensions.map(extension => `.${extension}`).join(',')" label="or select a file..."
                   variant="outlined"></v-file-input>
               </v-card>

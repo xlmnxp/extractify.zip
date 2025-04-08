@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CompressedFile } from 'libarchive.js/src/compressed-file';
 import type { iFile } from '~/composables/worker/7zip-manager';
 
 interface Props {
@@ -14,7 +13,7 @@ let selectedPath = useSelectedPath();
 <template>
     <v-list :selected="[selectedPath]" density="compact" :nav="nav">
         <template v-for="file in filesList" :key="file.path">
-            <v-list-item active-color="light-blue-darken-4" :active="selectedPath == file.path" :title="file.name"
+            <v-list-item color="light-blue-darken-4" :active="selectedPath == file.path" :title="file.name"
                 :subtitle="file.path" :value="file.path" @click="() => {
                     selectedPath = file.path;
                     file.toggle = !file.toggle;
