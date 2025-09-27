@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, computed } from 'vue'
 import { FilesManager } from '~/composables/files-manager';
-import { iFile } from '~/composables/worker/7zip-manager';
+import type { iFile } from '~/composables/worker/7zip-manager';
 import { VBtn } from 'vuetify/components';
 
 interface Props {

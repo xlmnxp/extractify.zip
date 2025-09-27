@@ -2,16 +2,15 @@
 // and extract files from archive
 
 import * as Comlink from "comlink";
-// @ts-expect-error typescript can't find it when query it with ?worker
 import SevenZipWorker from "./worker/7zip-manager?worker";
-import { SevenZipManager, iFile } from "./worker/7zip-manager";
+import { SevenZipManager, type iFile } from "./worker/7zip-manager";
 import mime from 'mime';
 
 export const videoExtensions = ['mp4', 'avi', 'mov', 'mkv'];
 export const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 export const audioExtensions = ['mp3', 'wav', 'ogg', 'flac'];
 export const textExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'md', 'js', 'ts', 'php', 'c', 'cpp', 'py', 'html', 'css', 'scss', 'sass', 'less', 'json', 'xml', 'sql', 'java', 'go', 'rb', 'sh', 'bat', 'ps1', 'cmd', 'yml', 'yaml', 'ini', 'toml', 'csv', 'tsv', 'gitignore', 'lock', 'htaccess', 'htpasswd', 'env', 'dockerfile', 'gitattributes', 'gitmodules', 'editorconfig', 'babelrc', 'eslintrc', 'eslintignore', 'prettierrc', 'prettierignore', 'stylelintrc', 'stylelintignore', 'postcssrc', 'postcss.config', 'jsx', 'tsx', 'license'];
-export const binaryExtensions = ['exe', 'dll', 'so', 'dylib', 'bin', 'dat', 'db', 'sqlite', 'o', 'class', 'pyc'];
+export const binaryExtensions = ['exe', 'dll', 'so', 'dylib', 'bin', 'dat', 'db', 'sqlite', 'o', 'class', 'pyc', 'jar'];
 export const supportedExtensions = [
     '7z', 'xz', 'bz2', 'gz', 'tar', 'zip', 'wim',
     'apfs', 'ar', 'arj', 'cab', 'chm', 'cpio', 'dmg', 'ext', 'fat', 'gpt', 'hfs',

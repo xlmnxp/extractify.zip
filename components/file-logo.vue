@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { iFile } from '~/composables/worker/7zip-manager';
+import type { iFile } from '~/composables/worker/7zip-manager';
 
 interface Props {
     file: iFile,

@@ -2,7 +2,7 @@
 import { useDisplay } from 'vuetify/lib/framework.mjs';
 import { HistoryManager } from './composables/history-manager';
 import { FilesManager, supportedExtensions, imageExtensions } from './composables/files-manager';
-import type { iFile } from "composables/worker/7zip-manager"
+import type { iFile } from "./composables/worker/7zip-manager"
 import { videoExtensions, binaryExtensions } from '#imports';
 
 let display = useDisplay();
@@ -95,7 +95,7 @@ function stepUp(path: string) {
       <v-footer class="d-flex w-100 flex-column" style="position: absolute;bottom: 0;">
         <div class="d-flex w-100 align-center">
           <a href="https://github.com/xlmnxp/extractify.zip" target="_blank" class="text-subtitle-2"
-            style="text-decoration: underline;text-decoration-style: dotted">Open Source Licenses</a>
+            style="text-decoration: underline;text-decoration-style: dotted">Source Code</a>
           <v-spacer></v-spacer>
           <v-btn class="mx-4" icon="mdi-github" variant="plain" size="small"
             href="https://github.com/xlmnxp/extractify.zip" target="_blank"></v-btn>
@@ -137,7 +137,7 @@ function stepUp(path: string) {
           </v-col>
         </v-row>
       </v-toolbar>
-      <v-container>
+      <v-container style="max-width: 100%">
         <template v-if="filesManager.getFile(selectedPath)?.isFolder">
           <FolderViewer :filesManager="filesManager" :filesGridList="filesGridList" :selectedList="selectedList"></FolderViewer>
         </template>
@@ -161,7 +161,7 @@ function stepUp(path: string) {
           <!-- tutorial drag and drop zipped file here and review it securely -->
           <v-row align="center" justify="center" style="height: calc(100vh - 120px)">
             <v-col cols="12">
-              <v-card variant="flat" class="mx-auto" max-width="768">
+              <v-card variant="flat" class="mx-auto" max-width="768" style="background: unset;">
                 <!-- v-icon for file -->
                 <v-icon class="mx-auto" size="100">mdi-file</v-icon>
                 <v-card-title>Drag and Drop Compressed Files</v-card-title>
@@ -175,7 +175,7 @@ function stepUp(path: string) {
                 </v-card-text>
 
                 <!-- file input -->
-                <v-file-input class="mx-5" v-model="files"
+                <v-file-input class="mx-5" v-model="files[0]"
                   :accept="supportedExtensions.map(extension => `.${extension}`).join(',')" label="or select a file..."
                   variant="outlined"></v-file-input>
               </v-card>

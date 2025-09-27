@@ -85,7 +85,7 @@ watchEffect(() => {
     <v-list class="select-area" :selected="[selectedPath]" style="height: calc(100vh - 120px);">
         <v-row no-gutters>
             <v-col cols="6" lg="2" md="3" sm="6" v-for="file of filesGridList" style="text-align: center;">
-                <v-list-item class="position-relative ma-2 pa-5 selectable" active-color="light-blue-darken-4"
+                <v-list-item class="position-relative ma-2 pa-5 selectable" color="light-blue-darken-4"
                     :value="file.path" rounded @click="selectedPath = file.path">
                     <v-menu>
                         <template v-slot:activator="{ props }">
