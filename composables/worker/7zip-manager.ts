@@ -49,7 +49,7 @@ export class SevenZipManager {
         if (!this.sevenZip) return;
 
         this.originalName = file.name;
-        this.archiveName = file.name;
+        this.archiveName = `/${file.name}`;
 
         const stream = this.sevenZip.FS.open(this.archiveName, "w+");
         let archiveData = new Uint8Array(await file.arrayBuffer());
@@ -211,7 +211,7 @@ export class SevenZipManager {
             const newFileStream = this.sevenZip.FS.open(newTempPath, "w+");
             this.sevenZip.FS.write(newFileStream, fileContent, 0, fileContent.byteLength);
             this.sevenZip.FS.close(newFileStream);
-            
+
             // Remove the old file from the archive
             this.execute(['d', this.archiveName, tempPath]);
             
@@ -226,6 +226,153 @@ export class SevenZipManager {
         } catch (error) {
             console.error('Error renaming file:', error);
             return false;
+        }
+    }
+
+    // create archive from selected files
+    async createArchiveFromFiles(filePaths: string[], archiveName: string, _format: string = 'zip') {
+        if (!this.sevenZip) return false;
+        
+        let tempDir: string | null = null;
+        
+        try {
+            // Create a new archive
+            const newArchivePath = `/${archiveName}`;
+            
+            // Extract all selected files to temporary directory
+            tempDir = `/temp_${randomUUID()}`;
+            this.sevenZip.FS.mkdir(tempDir, 0o777);
+            
+            for (const filePath of filePaths) {
+                const tempPath = filePath.substring(1); // Remove leading slash
+                try {
+                    this.execute(['x', '-y', this.archiveName, tempPath, `-o${tempDir}`]);
+                } catch (extractError) {
+                    console.warn(`Warning: Could not extract ${tempPath}:`, extractError);
+                }
+            }
+
+            // loop through all files in temp directory and set the permission to 777
+            try {
+                const files = this.sevenZip.FS.readdir(tempDir);
+                for (const file of files) {
+                    const fullPath = `${tempDir}/${file}`;
+                    try {
+                        this.sevenZip.FS.chmod(fullPath, 0o777);
+                    } catch (chmodError) {
+                        console.warn(`Warning: Could not set permissions for ${fullPath}:`, chmodError);
+                    }
+                }
+            } catch (readdirError) {
+                console.warn(`Warning: Could not read temp directory ${tempDir}:`, readdirError);
+            }
+
+            // Create new archive with extracted files using the specified format
+            this.sevenZip.FS.chdir(tempDir);
+            
+            this.execute(['a', newArchivePath, `*`]);
+
+            this.sevenZip.FS.chdir('/');
+            
+            return true;
+        } catch (error) {
+            console.error('Error creating archive:', error);
+            return false;
+        } finally {
+            // Always try to clean up temporary directory, even if there was an error
+            if (tempDir) {
+                try {
+                    this.cleanupDirectory(tempDir);
+                } catch (cleanupError) {
+                    console.warn(`Warning: Could not clean up temp directory ${tempDir}:`, cleanupError);
+                }
+            }
+        }
+    }
+
+    // get archive blob for download
+    async getArchiveBlob(archiveName: string) {
+        if (!this.sevenZip) return null;
+        
+        try {
+            const buffer = this.sevenZip.FS.readFile(`/${archiveName}`);
+            
+            // Determine MIME type based on file extension
+            const extension = archiveName.split('.').pop()?.toLowerCase();
+            let mimeType = 'application/zip'; // default
+            
+            switch (extension) {
+                case '7z':
+                    mimeType = 'application/x-7z-compressed';
+                    break;
+                case 'tar':
+                    mimeType = 'application/x-tar';
+                    break;
+                case 'zip':
+                default:
+                    mimeType = 'application/zip';
+                    break;
+            }
+            
+            const blob = new Blob([new Uint8Array(buffer)], { type: mimeType });
+            
+            // Clean up the temporary archive
+            this.sevenZip.FS.unlink(`/${archiveName}`);
+            
+            return blob;
+        } catch (error) {
+            console.error('Error getting archive blob:', error);
+            return null;
+        }
+    }
+
+    // helper method to clean up directory recursively
+    private cleanupDirectory(dirPath: string) {
+        if (!this.sevenZip) return;
+        try {
+            // Check if directory exists first
+            const stat = this.sevenZip.FS.stat(dirPath);
+            if (!stat || !(stat as any).isDirectory || !(stat as any).isDirectory()) {
+                return; // Directory doesn't exist or is not a directory
+            }
+
+            const files = this.sevenZip.FS.readdir(dirPath);
+            
+            // First, recursively clean up all subdirectories and files
+            for (const file of files) {
+                const fullPath = `${dirPath}/${file}`;
+                try {
+                    const fileStat = this.sevenZip.FS.stat(fullPath);
+                    if (fileStat && (fileStat as any).isDirectory && (fileStat as any).isDirectory()) {
+                        // Recursively clean up subdirectory
+                        this.cleanupDirectory(fullPath);
+                    } else {
+                        // Remove file
+                        this.sevenZip.FS.unlink(fullPath);
+                    }
+                } catch (fileError) {
+                    console.warn(`Warning: Could not process ${fullPath}:`, fileError);
+                }
+            }
+            
+            // Now try to remove the directory itself
+            try {
+                this.sevenZip.FS.rmdir(dirPath);
+            } catch (rmdirError) {
+                // If rmdir fails, try to force remove if it's empty
+                try {
+                    const remainingFiles = this.sevenZip.FS.readdir(dirPath);
+                    if (remainingFiles.length === 0) {
+                        this.sevenZip.FS.rmdir(dirPath);
+                    } else {
+                        console.warn(`Directory ${dirPath} still contains files:`, remainingFiles);
+                    }
+                } catch (finalError) {
+                    console.warn(`Could not remove directory ${dirPath}:`, finalError);
+                }
+            }
+        } catch (error) {
+            console.error('Error cleaning up directory:', error);
         }
     }
 }

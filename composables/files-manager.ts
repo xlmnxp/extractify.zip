@@ -125,6 +125,52 @@ export class FilesManager {
         }
     }
 
+    async downloadAllAsArchive(selectedFiles: string[] = [], format: string = 'zip') {
+        if (!this.remoteSevenZipManager) return;
+
+        try {
+            // If no files selected, download all files in current directory
+            const filesToDownload = selectedFiles.length > 0 ? selectedFiles : this.getAllFilePaths();
+            
+            // Create a new archive with selected files
+            const archiveName = `extracted_files_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.${format}`;
+            const success = await this.remoteSevenZipManager.createArchiveFromFiles(filesToDownload, archiveName, format);
+            
+            if (success) {
+                // Download the created archive
+                const archiveBlob = await this.remoteSevenZipManager.getArchiveBlob(archiveName);
+                if (archiveBlob) {
+                    const url = URL.createObjectURL(archiveBlob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = archiveName;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                }
+            }
+        } catch (error) {
+            console.error('Error creating archive:', error);
+            throw error;
+        }
+    }
+
+    private getAllFilePaths(): string[] {
+        const allPaths: string[] = [];
+        
+        const collectPaths = (files: iFile[]) => {
+            for (const file of files) {
+                if (!file.isFolder) {
+                    allPaths.push(file.path);
+                } else if (file.content) {
+                    collectPaths(file.content);
+                }
+            }
+        };
+        
+        collectPaths(this.filesList.value);
+        return allPaths;
+    }
+
     private updateFileInStructure(oldPath: string, newName: string) {
         const updateFileRecursive = (files: iFile[]): boolean => {
             for (let i = 0; i < files.length; i++) {

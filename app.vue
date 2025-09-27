@@ -19,6 +19,14 @@ let history = new HistoryManager(filesManager);
 let mediaBlobUrl = ref('');
 let errorDialog = ref(false);
 let errorMessage = ref('');
+let selectedArchiveFormat = ref('zip');
+
+// Available archive formats
+const archiveFormats = [
+  { value: 'zip', label: 'ZIP', icon: 'mdi-folder-zip' },
+  { value: '7z', label: '7Z', icon: 'mdi-folder-zip' },
+  { value: 'tar', label: 'TAR', icon: 'mdi-folder-zip' },
+];
 
 watchEffect(async () => {
   if (files.value?.[0]) {
@@ -78,6 +86,15 @@ function stepUp(path: string) {
   return (pathArray.join("/") || "/");
 }
 
+// download all as archive
+async function downloadAllAsArchive() {
+  try {
+    await filesManager.downloadAllAsArchive(selectedList.value, selectedArchiveFormat.value);
+  } catch (error) {
+    console.error('Error downloading archive:', error);
+  }
+}
+
 </script>
 <template>
   <v-layout @drop.prevent="onDrop">
@@ -126,6 +143,28 @@ function stepUp(path: string) {
                   v-bind="props"></v-btn>
               </template>
               <v-list>
+                <v-list-item title="Download as Archive" aria-label="Download as Archive" icon="mdi-download" link>
+                    <template v-slot:prepend>
+                      <v-icon icon="mdi-chevron-left"></v-icon>
+                      <v-icon icon="mdi-download"></v-icon>
+                    </template>
+                  <v-menu :open-on-focus="false" activator="parent" open-on-hover submenu>
+                    <v-list>
+                      <v-list-item
+                        v-for="format in archiveFormats"
+                        :key="format.value"
+                        :title="`Download as ${format.label} (${format.value})`"
+                        :value="format.value"
+                        @click="selectedArchiveFormat = format.value; downloadAllAsArchive()"
+                        :disabled="!files.length"
+                      >
+                        <template v-slot:prepend>
+                          <v-icon :icon="format.icon"></v-icon>
+                        </template>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </v-list-item>
                 <v-list-item title="Close" aria-label="Close" icon="mdi-close"
                   @click="files = []; selectedPath = '/'; selectedList = []; filesGridList = []; filesList = []; history.reset()">
                   <template v-slot:prepend>
