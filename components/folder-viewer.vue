@@ -2,7 +2,7 @@
 import { getElementInfo } from "moveable";
 import { VueSelecto } from "vue3-selecto";
 import { FilesManager } from '~/composables/files-manager';
-import { iFile } from '~/composables/worker/7zip-manager';
+import { type iFile } from '~/composables/worker/7zip-manager';
 import RenameDialog from './rename-dialog.vue';
 
 interface Props {
