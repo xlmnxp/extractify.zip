@@ -2,6 +2,7 @@
 // and extract files from archive
 
 import * as Comlink from "comlink";
+// @ts-expect-error 7z-wasm have that file but typescript can't find it when query it with url
 import SevenZipWorker from "./worker/7zip-manager?worker";
 import { SevenZipManager, type iFile } from "./worker/7zip-manager";
 import mime from 'mime';

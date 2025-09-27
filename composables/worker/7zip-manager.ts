@@ -2,6 +2,7 @@
 // and extract files from archive
 
 import SevenZip, { type SevenZipModule } from "7z-wasm";
+// @ts-expect-error 7z-wasm have that file but typescript can't find it when query it with url
 import SevenZipWasm from "7z-wasm/7zz.wasm?url";
 import * as Comlink from "comlink";
 import { v4 as randomUUID } from "uuid";
