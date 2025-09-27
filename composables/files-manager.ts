@@ -109,4 +109,45 @@ export class FilesManager {
         a.click();
         
     }
+
+    async renameFile(path: string, newName: string) {
+        if (!this.remoteSevenZipManager) return false;
+        
+        try {
+            const success = await this.remoteSevenZipManager.renameFile(path, newName);
+            if (success) {
+                // Update the file structure in memory
+                this.updateFileInStructure(path, newName);
+            }
+            return success;
+        } catch (error) {
+            console.error('Error renaming file:', error);
+            return false;
+        }
+    }
+
+    private updateFileInStructure(oldPath: string, newName: string) {
+        const updateFileRecursive = (files: iFile[]): boolean => {
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (file.path === oldPath) {
+                    // Update the file name and path
+                    const pathParts = oldPath.split('/');
+                    pathParts.pop();
+                    const directoryPath = pathParts.join('/') || '/';
+                    const newPath = directoryPath === '/' ? `/${newName}` : `${directoryPath}/${newName}`;
+                    
+                    file.name = newName;
+                    file.path = newPath;
+                    return true;
+                }
+                if (file.isFolder && file.content && updateFileRecursive(file.content)) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        updateFileRecursive(this.filesList.value);
+    }
 }

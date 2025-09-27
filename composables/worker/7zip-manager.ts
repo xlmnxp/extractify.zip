@@ -162,7 +162,7 @@ export class SevenZipManager {
         // get file buffer
         const buffer = this.sevenZip.FS.readFile(file.path);
 
-        const blob = new Blob([buffer], { type: mime.getType(file.extension!) || "application/octet-stream" });
+        const blob = new Blob([new Uint8Array(buffer)], { type: mime.getType(file.extension!) || "application/octet-stream" });
         const blobUrl = URL.createObjectURL(blob);
 
         // remove the file after extract local blob url
@@ -187,6 +187,47 @@ export class SevenZipManager {
         this.sevenZip.FS.unlink(file.path);
 
         return buffer;
+    }
+
+    // rename file in archive
+    async renameFile(oldPath: string, newName: string) {
+        if (!this.sevenZip) return false;
+        
+        try {
+            // Get the directory path for the new file
+            const pathParts = oldPath.split('/');
+            pathParts.pop(); // Remove the old filename
+            const directoryPath = pathParts.join('/') || '/';
+            const newPath = directoryPath === '/' ? `/${newName}` : `${directoryPath}/${newName}`;
+            
+            // Extract the file to a temporary location
+            const tempPath = oldPath.substring(1);
+            this.execute(['x', '-y', this.archiveName, tempPath]);
+            
+            // Read the file content
+            const fileContent = this.sevenZip.FS.readFile(tempPath);
+            
+            // Create the new file with the new name
+            const newTempPath = newPath.substring(1);
+            const newFileStream = this.sevenZip.FS.open(newTempPath, "w+");
+            this.sevenZip.FS.write(newFileStream, fileContent, 0, fileContent.byteLength);
+            this.sevenZip.FS.close(newFileStream);
+            
+            // Remove the old file from the archive
+            this.execute(['d', this.archiveName, tempPath]);
+            
+            // Add the new file to the archive
+            this.execute(['a', this.archiveName, newTempPath]);
+            
+            // Clean up the temporary files
+            this.sevenZip.FS.unlink(tempPath);
+            this.sevenZip.FS.unlink(newTempPath);
+            
+            return true;
+        } catch (error) {
+            console.error('Error renaming file:', error);
+            return false;
+        }
     }
 }
 
